@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour {
     public int damage;
-
     public float acceleration = 0;
     public float firedAngle;
     private Rigidbody2D r;
+    public enum Behavior { Break, Linger }
+    public Behavior behavior = Behavior.Break;
 
     private void Start() {
         r = GetComponent<Rigidbody2D>();
@@ -24,6 +25,27 @@ public class Bullet : MonoBehaviour {
                 Mathf.Cos(firedAngle) * acceleration,
                 Mathf.Sin(firedAngle) * acceleration
             );
+        }
+    }
+    
+    private void OnTriggerEnter2D(Collider2D other) {
+        GameObject g = other.gameObject;
+        switch (g.name) {
+            case "enemy(Clone)":
+                g.GetComponent<Enemy>().ChangeHealthBy(damage);
+                break;
+            case ("player"):
+                g.GetComponent<Player>().ChangeHealthBy(damage);
+                break;
+            case "test":
+                break;
+        }
+        if (g.name is "enemy(Clone)" or "player") {
+            switch (behavior) {
+                case Behavior.Linger: break;
+                case Behavior.Break: Destroy(gameObject); break;
+                default: throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }
