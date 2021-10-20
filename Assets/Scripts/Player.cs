@@ -15,6 +15,8 @@ public class Player : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private GameObject lStrikeBorder;
     [SerializeField] private GameObject lStrikeCenter;
+    [SerializeField] private GameObject rockRiseCenter;
+    [SerializeField] private GameObject waterPullBorder;
     [SerializeField] private int lightningDamage = 25;
     [SerializeField] private float lightningDelay = 1.5f;
     [SerializeField] private float lightningCooldown = 1f;
@@ -73,12 +75,13 @@ public class Player : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Alpha2)) { Fireball(); }
         if (Input.GetKeyDown(KeyCode.Alpha3)) { GenericShotgun(); }
         if (Input.GetKeyDown(KeyCode.Alpha4)) { PlantRoot(); }
-        if (Input.GetKeyDown(KeyCode.Alpha5)) { WaterPull(); }
-        if (Input.GetKeyDown(KeyCode.Alpha6)) { RockRise(); }
-        if (Input.GetKeyDown(KeyCode.Q)) { ConvergingSpell(); }
-        if (Input.GetKeyDown(KeyCode.E)) { Flamethrower(); }
-        if (Input.GetKeyDown(KeyCode.R)) { Forcepush(); }
-        if (Input.GetKeyDown(KeyCode.T)) { IceVolley(); }
+        if (Input.GetKeyDown(KeyCode.Alpha5)) { StartCoroutine(WaterPull()); }
+        if (Input.GetKeyDown(KeyCode.Alpha6)) { StartCoroutine(RockRise()); }
+        // if (Input.GetKeyDown(KeyCode.Q)) { ConvergingSpell(); }
+        // if (Input.GetKeyDown(KeyCode.E)) { Flamethrower(); }
+        // if (Input.GetKeyDown(KeyCode.R)) { Forcepush(); }
+        // if (Input.GetKeyDown(KeyCode.T)) { IceVolley(); }
+        // ice shield
     }
     
     // area marked, aoe strike down after a delay
@@ -111,16 +114,36 @@ public class Player : MonoBehaviour {
         if (!fireballUsed) {
             fireballUsed = true;
             StartCoroutine(CountdownCooldownFor("fireball"));
-            FireProjectile(fireballSpeed, fireballDamage, 0f, scales["large"], Bullet.Behavior.Linger, Colors.orange);
+            FireProjectile(
+                fireballSpeed, 
+                fireballDamage, 
+                0f, 
+                GetAngleToCursor(transform.position), 
+                scales["large"], 
+                Bullet.Behavior.Linger, 
+                Colors.orange, 
+                transform.position
+            );
         }
     }
     
     // simple shotgun
     private void GenericShotgun() {
         if (!gShotgunUsed) {
-            gShotgunUsed = false;
+            gShotgunUsed = true;
             StartCoroutine(CountdownCooldownFor("gShotgun"));
-            Shotgun(gShotgunCount, gShotgunDamage, gShotgunDamage, 0f, GetAngleToCursor(), scale["medium"], gshotGunSpread, Colors.white);
+            Shotgun(
+                gShotgunCount, 
+                gShotgunSpeed, 
+                gShotgunDamage, 
+                0f, 
+                GetAngleToCursor(transform.position), 
+                scales["medium"], 
+                gShotgunSpread, 
+                Bullet.Behavior.Break, 
+                Colors.white, 
+                transform.position
+            );
         }
     }
 
@@ -128,60 +151,90 @@ public class Player : MonoBehaviour {
         if (!plantRootUsed) {
             plantRootUsed = true;
             StartCoroutine(CountdownCooldownFor("plantRoot"));
-            Bullet b = FireProjectile(plantRootSpeed, plantRootDamage, 0f, scales["small"], Bullet.Behavior.Break, Colors.green);
+            Bullet b = FireProjectile(
+                plantRootSpeed, 
+                plantRootDamage, 
+                0f, 
+                GetAngleToCursor(
+                transform.position), 
+                scales["small"], 
+                Bullet.Behavior.Break, 
+                Colors.green, 
+                transform.position
+            );
             b.rootDuration = plantRootDuration;
         }
     }
 
-    private void WaterPull() { 
+    private IEnumerator WaterPull() { 
         if (!waterPullUsed) {
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             waterPullUsed = true;
             StartCoroutine(CountdownCooldownFor("waterPull"));
             GameObject b = Instantiate(waterPullBorder, drop, Quaternion.identity);
-            Bullet c = FireProjectile(0, 0, 0, new Vector2(5, 5), Bullet.Behavior.Linger, Colors.babyBlue);
+            b.transform.localScale = new Vector2(5f, 5f);
+            Bullet c = FireProjectile(
+                0, 0, 0, 0, 
+                new Vector2(5, 5), 
+                Bullet.Behavior.Linger, 
+                Colors.babyBlue, 
+                drop
+            );
             c.rootDuration = 1f;
-            print("USE A UNITY MAGNET HERE!");
-            float initial = c.gameObject.transform.localScale.x;
-            for (int i = 0; i < (waterPullDelay*10); i++) {
-                c.gameObject.transform.localScale -= new Vector3(initial/(waterPullDelay*10), initial/(waterPullDelay*10), 0f);
-                yield return new WaitForSeconds(0.1f);
-            }
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
             Destroy(c);
+            float initial = c.gameObject.transform.localScale.x;
+            for (int i = 0; i < (waterPullDelay*20); i++) {
+                c.gameObject.transform.localScale -= new Vector3(initial/(waterPullDelay*20), initial/(waterPullDelay*20), 0f);
+                yield return new WaitForSeconds(0.05f);
+            }
             Destroy(b);
         }
     }
 
-    private void RockRise() { 
+    private IEnumerator RockRise() { 
         if (!rockRiseUsed) {
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             rockRiseUsed = true;
             StartCoroutine(CountdownCooldownFor("rockRise"));
             GameObject b = Instantiate(rockRiseCenter, drop, Quaternion.identity);
-            float initial = b.transform.localScale.x;
             for (int i = 0; i < (rockRiseDelay*10); i++) {
                 b.transform.localScale += new Vector3(0.75f, 0.75f, 0f);
                 yield return new WaitForSeconds(0.1f);
             }
-            Bullet c = FireProjectile(0, 0, 0, new Vector2(4.25f, 4.25f), Bullet.Behavior.Linger, Colors.invisible);
+            Bullet c = FireProjectile(
+                0, 0, 0, 0, 
+                new Vector2(4.25f, 4.25f), 
+                Bullet.Behavior.Linger, 
+                Colors.invisible, 
+                transform.position
+            );
             yield return new WaitForSeconds(0.1f);
             Destroy(c);
             Destroy(b);
         }
     }
 
-    private void ConvergingSpell() { 
-        if (!convergingSpellUsed)  {
-            convergingSpellUsed = true;
-            StartCoroutine(CountdownCooldownFor("cSpell"));
+    // private void ConvergingSpell() { 
+    //     if (!convergingSpellUsed)  {
+    //         convergingSpellUsed = true;
+    //         StartCoroutine(CountdownCooldownFor("cSpell"));
+    //
+    //     }
+    // }
 
-        }
-    }
-
-    private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color) {
+    private void Shotgun(int count, int spd, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior,  Color color, Vector3 pos) {
         for (int i = 0; i < count; i++) {
-            FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scales["medium"], behavior, color);
+            FireProjectile(
+                spd, 
+                projectileDamage, 
+                acceleration, 
+                theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, 
+                scales["medium"], 
+                behavior, 
+                color, 
+                pos
+            );
         }
     }
 
@@ -238,16 +291,24 @@ public class Player : MonoBehaviour {
             StartCoroutine(RefreshAttack());
         }
         else { return; }
-        FireProjectile(projectileSpeed, attackDamage, 0f, scales["medium"], Bullet.Behavior.Break, Colors.blue);
+        FireProjectile(
+            projectileSpeed, 
+            attackDamage, 
+            0f, 
+            GetAngleToCursor(transform.position), 
+            scales["medium"], 
+            Bullet.Behavior.Break, 
+            Colors.blue, 
+            transform.position
+        );
     }
     
-    private float GetAngleToCursor(Vector3 pos=transform.position) { 
+    private float GetAngleToCursor(Vector3 pos) { 
         Vector2 lookDirection = Camera.main.ScreenToWorldPoint(Input.mousePosition) - pos;
         return Mathf.Atan2(lookDirection.y, lookDirection.x);
     }
 
-    private Bullet FireProjectile(float spd, int dmg, float acc, Vector2 scale, Bullet.Behavior behavior, Color color, Vector3 pos=transform.position) {
-        float theta = GetAngleToCursor();
+    private Bullet FireProjectile(float spd, int dmg, float acc, float theta, Vector2 scale, Bullet.Behavior behavior, Color color, Vector3 pos) {
         GameObject fired = Instantiate(bullet, pos, Quaternion.identity);
         fired.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
         fired.GetComponent<Rigidbody2D>().velocity = new Vector2(

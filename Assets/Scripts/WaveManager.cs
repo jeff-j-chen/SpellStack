@@ -25,7 +25,6 @@ public class WaveManager : MonoBehaviour {
         StartCoroutine(NextWave());
     }
     
-    // TODO: FIX ENEMIES FAILING TO SPAWN WITH COLORS
     
     public IEnumerator NextWave() {
         curWave++;
@@ -37,8 +36,8 @@ public class WaveManager : MonoBehaviour {
                     e = SpawnEnemyAt(spawnPoints[PointNames.Center] + new Vector2(Random.Range(-4f, 4f), Random.Range(-4f, 4f)), Enemy.EnemyType.Regular);
                     SpriteRenderer sr = e.GetComponent<SpriteRenderer>();
                     Color temp = Colors.pastelRed;
-                    temp.a = 0f;
-                    sr.color = temp;
+                    // temp.a = 0f;
+                    // sr.color = temp;
                     yield return new WaitForSeconds(1f);
                 }
                 break;
@@ -64,11 +63,11 @@ public class WaveManager : MonoBehaviour {
     private IEnumerator FadeIn(SpriteRenderer sr, Enemy e) {
         Color temp = sr.color;
         temp.a = 0f;
-        sr.color = temp;
+        // sr.color = temp;
         for (int i = 0; i < 10; i++) {
             yield return new WaitForSeconds(0.1f);
-            sr.color = temp;
             temp.a += 0.1f;
+            sr.color = temp;
         }
         e.freezeMovement = false;
         // phase start handled in enemy start

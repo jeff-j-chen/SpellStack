@@ -1181,14 +1181,41 @@ MonoBehaviour:
   healthText: {fileID: 172156337}
   lStrikeBorder: {fileID: 3725844497557720189, guid: 364ff4c7922a4969c9bdd4af8d139a93, type: 3}
   lStrikeCenter: {fileID: 3922585798179134493, guid: 8e96629887e0a8d1eaaf470b68053dcb, type: 3}
+  rockRiseCenter: {fileID: 3875445567824920971, guid: 5d3cc8f07d8e3bef7a3ee488de6c85a8, type: 3}
+  waterPullBorder: {fileID: 7100903323560718306, guid: bd271f4c03013c8ccbec88977f1eb9b2, type: 3}
   lightningDamage: 50
   lightningDelay: 1.5
   lightningCooldown: 5
   lightningUsed: 0
+  rockRiseDamage: 25
+  rockRiseDelay: 1.5
+  rockRiseCooldown: 1
+  rockRiseUsed: 0
+  waterPullDamage: 25
+  waterPullDelay: 1.5
+  waterPullCooldown: 1
+  waterPullUsed: 0
   fireballDamage: 25
   fireballSpeed: 12
   fireballUsed: 0
-  fireballCooldown: 3
+  fireballCooldown: 1
+  gShotgunDamage: 5
+  gShotgunSpeed: 33
+  gShotgunSpread: 10
+  gShotgunCount: 5
+  gShotgunUsed: 0
+  gShotgunCooldown: 1
+  plantRootDamage: 10
+  plantRootSpeed: 15
+  plantRootDuration: 1
+  plantRootUsed: 0
+  plantRootCooldown: 1
+  cSpellDamage: 5
+  cSpellSpeed: 15
+  cSpellAcc: 5
+  cSpellRadius: 5
+  cSpellUsed: 0
+  cSpellCooldown: 1
 --- !u!50 &1310306421
 Rigidbody2D:
   serializedVersion: 4

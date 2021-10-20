@@ -34,7 +34,9 @@ public class Bullet : MonoBehaviour {
         switch (g.name) {
             case "enemy(Clone)":
                 g.GetComponent<Enemy>().ChangeHealthBy(damage);
-                StartCoroutine(g.GetComponent<Enemy>().RootForDuration(rootDuration));
+                if (rootDuration != 0) {
+                    g.GetComponent<Enemy>().RootForDuration(rootDuration);
+                }
                 break;
             case ("player"):
                 g.GetComponent<Player>().ChangeHealthBy(damage);

@@ -80,6 +80,9 @@ public class Enemy : MonoBehaviour {
                 Mathf.Sin(theta) * chaseSpeed
             );
         }
+        else if (freezeMovement) {
+            r.velocity = new Vector2(0, 0);
+        }
     }
 
     public void ChangeHealthBy(int amount) {
@@ -96,8 +99,12 @@ public class Enemy : MonoBehaviour {
             if (health <= 0) { waveManager.DecrementCount(gameObject); }
         }
     }
+    
+    public void RootForDuration(float duration) {
+        StartCoroutine(RootForDurationCoro(duration));
+    }
 
-    public IEnumerator RootForDuration(float duration) { 
+    public IEnumerator RootForDurationCoro(float duration) { 
         freezeMovement = true;
         yield return new WaitForSeconds(duration);
         freezeMovement = false;
@@ -143,7 +150,7 @@ public class Enemy : MonoBehaviour {
         curMovementType = MovementType.Standing;
         while (true) {
             yield return new WaitForSeconds(0.4f);
-            Vector2 lookDirection = (Vector2)player.transform.position;
+            Vector2 lookDirection = player.transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             FireProjectile(15, 5, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.red);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
