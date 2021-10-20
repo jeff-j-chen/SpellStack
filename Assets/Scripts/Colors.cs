@@ -12,5 +12,5 @@ public static class Colors {
     public static Color pastelRed = new(0.886f, 0.569f, 0.569f); // e29191
     public static Color orange = new(1, 0.647f, 0.024f); // ffa560
     public static Color pastelGreen = new(0.6f, 0.867f, 0.573f); // 99dd92
-        
+    public static Color invisible = new(0, 0, 0, 0); // alpha is 0
 }

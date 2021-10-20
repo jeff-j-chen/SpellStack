@@ -93,10 +93,14 @@ public class Enemy : MonoBehaviour {
             }
             health -= amount;
             print($"enemy damaged by {amount}, health is now {health}");
-            if (health <= 0) {
-                waveManager.DecrementCount(gameObject);
-            }
+            if (health <= 0) { waveManager.DecrementCount(gameObject); }
         }
+    }
+
+    public IEnumerator RootForDuration(float duration) { 
+        freezeMovement = true;
+        yield return new WaitForSeconds(duration);
+        freezeMovement = false;
     }
 
     private void FireProjectile(int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, Bullet.Behavior behavior, Color color) {
