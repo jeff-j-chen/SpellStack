@@ -9,6 +9,7 @@ using Random = UnityEngine.Random;
 public class WaveManager : MonoBehaviour {
     private enum PointNames { Center, TopLeft, TopRight, BottomLeft, BottomRight };
     private Dictionary<PointNames, Vector2> spawnPoints;
+    private List<PointNames> spawnPointList;
     [SerializeField] private int curWave = 0;
     [SerializeField] private int liveEnemies = 0;
     [SerializeField] private GameObject enemyPrefab;
@@ -22,6 +23,7 @@ public class WaveManager : MonoBehaviour {
             { PointNames.BottomLeft, new Vector2(-35, -18) },
             { PointNames.BottomRight, new Vector2(35, -18) },
         };
+        spawnPointList = new List<PointNames> { PointNames.Center, PointNames.TopRight, PointNames.TopLeft, PointNames.BottomLeft, PointNames.BottomRight };
         StartCoroutine(NextWave());
     }
     
@@ -35,11 +37,23 @@ public class WaveManager : MonoBehaviour {
                 for (int i = 0; i < 5; i++) {
                     e = SpawnEnemyAt(spawnPoints[PointNames.Center] + new Vector2(Random.Range(-4f, 4f), Random.Range(-4f, 4f)), Enemy.EnemyType.Regular);
                     SpriteRenderer sr = e.GetComponent<SpriteRenderer>();
+                    sr.color = Colors.pastelRed;
                     Color temp = Colors.pastelRed;
-                    // temp.a = 0f;
-                    // sr.color = temp;
+                    temp.a = 0f;
+                    sr.color = temp;
                     yield return new WaitForSeconds(1f);
                 }
+                yield return new WaitForSeconds(5f);
+                // for (int i = 0; i < 5; i++) {
+                //     e = SpawnEnemyAt(spawnPoints[PointNames.Center] + new Vector2(Random.Range(-4f, 4f), Random.Range(-4f, 4f)), Enemy.EnemyType.FleeingTracker);
+                //     SpriteRenderer sr = e.GetComponent<SpriteRenderer>();
+                //     sr.color = Colors.pastelRed;
+                //     Color temp = Colors.pastelRed;
+                //     temp.a = 0f;
+                //     sr.color = temp;
+                //     yield return new WaitForSeconds(1f);
+                // }
+                
                 break;
             case 2:
                 liveEnemies = 1;
@@ -61,6 +75,7 @@ public class WaveManager : MonoBehaviour {
     }
     
     private IEnumerator FadeIn(SpriteRenderer sr, Enemy e) {
+        yield return new WaitForSeconds(0.01f);
         Color temp = sr.color;
         temp.a = 0f;
         // sr.color = temp;

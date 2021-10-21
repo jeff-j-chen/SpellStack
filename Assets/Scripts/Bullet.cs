@@ -41,6 +41,9 @@ public class Bullet : MonoBehaviour {
             case ("player"):
                 g.GetComponent<Player>().ChangeHealthBy(damage);
                 break;
+            case ("iceshield(Clone)"):
+                Destroy(gameObject);
+                break;
             case "test":
                 break;
         }
