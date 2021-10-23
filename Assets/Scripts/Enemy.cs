@@ -8,14 +8,15 @@ using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour {
     [SerializeField] public int health;
-    public enum EnemyType { Regular, BossOne, BossTwo, Shotgun, FleeingTracker };
+    public enum EnemyType { Regular, BossOne, BossTwo, Shotgun, FleeingTracker, MachineGunner };
     [SerializeField] public EnemyType enemyType;
     [SerializeField] private GameObject bullet;
     [SerializeField] private float chaseSpeed = 6f;
     [SerializeField] private int curPhase = 0;
     [SerializeField] public bool freezeMovement = false;
     [SerializeField] public bool isInvincible = false;
-    private enum MovementType { Standing, RunningAtPlayer, RunningAwayFromPlayer };
+    private enum MovementType { Standing, RunningAtPlayer, RunningAwayFromPlayer, MaintainDistance };
+    private float distanceToMaintain = 50f;
     private Dictionary<string, Vector2> scales = new() {
         { "small", new Vector2(0.5f, 0.5f) },
         { "medium", new Vector2(1f, 1f) },
@@ -43,7 +44,8 @@ public class Enemy : MonoBehaviour {
             { EnemyType.BossOne, 1000 }, 
             { EnemyType.BossTwo, 1500 }, 
             { EnemyType.Shotgun, 150 }, 
-            { EnemyType.FleeingTracker, 100 }, 
+            { EnemyType.FleeingTracker, 100 },
+            { EnemyType.MachineGunner, 100 },  
         };
         health = healthDict[enemyType];
         transform.localScale = enemyType switch {
@@ -56,8 +58,14 @@ public class Enemy : MonoBehaviour {
             { EnemyType.Regular, new() {
                   { 1f, SingleNonTrackingWithChase },
             }},
+            { EnemyType.MachineGunner, new() {
+                  { 1f, MachineGun },
+            }},
             { EnemyType.FleeingTracker, new() {
                   { 1f, SingleTrackingWhileFleeing },
+            }},
+            { EnemyType.Shotgun, new() {
+                  { 1f, ShotgunWithChase },
             }},
             { EnemyType.BossOne, new() {
                 { 1f, SingleNonTrackingStationary },
@@ -76,26 +84,40 @@ public class Enemy : MonoBehaviour {
     private void FixedUpdate() {
         if (curMovementType != MovementType.Standing && !freezeMovement) {
             if (curMovementType == MovementType.RunningAtPlayer) {
-                Vector2 lookDirection = player.transform.position - transform.position;
-                float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-                transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
-                r.velocity = new Vector2(
-                    Mathf.Cos(theta) * chaseSpeed,
-                    Mathf.Sin(theta) * chaseSpeed
-                );
+                MoveToPlayer(false);
             }
             else if (curMovementType == MovementType.RunningAwayFromPlayer) {
-                Vector2 lookDirection = player.transform.position - transform.position;
-                float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-                transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
-                r.velocity = new Vector2(
-                    -Mathf.Cos(theta) * chaseSpeed,
-                    -Mathf.Sin(theta) * chaseSpeed
-                );
+                MoveToPlayer(true)
+            }
+            else if (curMovementType == MovementType.MaintainDistance) { 
+                if (DistFormula(transform.position, player.transform.position) > distanceToMaintain) { 
+                    MoveToPlayer(false);
+                })
+                else { 
+                    MoveToPlayer(true);
+                }
             }
         }
         else if (freezeMovement) {
             r.velocity = new Vector2(0, 0);
+        }
+    }
+
+    private void MoveToPlayer(bool flip) {
+        Vector2 lookDirection = player.transform.position - transform.position;
+        float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+        transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
+        if (!flip)  {
+            r.velocity = new Vector2(
+                Mathf.Cos(theta) * chaseSpeed,
+                Mathf.Sin(theta) * chaseSpeed
+            );
+        }
+        else { 
+            r.velocity = new Vector2(
+                Mathf.Cos(theta) * chaseSpeed,
+                Mathf.Sin(theta) * chaseSpeed
+            );
         }
     }
 
@@ -213,6 +235,30 @@ public class Enemy : MonoBehaviour {
         }
     }
 
+    private IEnumerator ShotgunWithChase() {
+        curMovementType = MovementType.Standing;
+        while (true) {
+            Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            Shotgun(5, 15, 3, 0f, theta, scales["medium"], 12, Bullet.Behavior.Break, Colors.green);
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    private IEnumerator MachineGun() {
+        curMovementType = MovementType.MaintainDistance;
+        while (true) {
+            Vector2 lookDirection = (Vector2)player.transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+            yield return new WaitForSeconds(0.5f);
+            lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
+            theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(20, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+            yield return new WaitForSeconds(0.5f);
+        }
+    }
+
     private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color) {
         for (int i = 0; i < count; i++) {
             FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scales["medium"], behavior, color);
@@ -251,5 +297,9 @@ public class Enemy : MonoBehaviour {
         freezeMovement = false;
         isInvincible = false;
         currentAttackPattern = StartCoroutine(pattern());
+    }
+
+    private float DistFormula(Vector3 pos1, Vector3 pos2) {
+        return Math.Sqrt(pos1.x * pos1x + pos1.y  * pos1.y);
     }
 }
