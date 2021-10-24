@@ -20,7 +20,6 @@ public class ItemFrame : MonoBehaviour {
     }
 
     public void PutOnCooldownFor(float cooldown) {
-        print("called!");
         dropper.SetActive(true);
         cover.SetActive(true);
         StartCoroutine(PutOnCooldownForCoro(cooldown));
@@ -39,6 +38,11 @@ public class ItemFrame : MonoBehaviour {
     }
     
     public void Unlock() {
+        StartCoroutine(WTF());
+    }
+    
+    private IEnumerator WTF() {
+        yield return new WaitForSeconds(0.01f);
         dropper.SetActive(false);
         cover.SetActive(false);
         spellIcon.SetActive(true);

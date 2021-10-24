@@ -128,12 +128,16 @@ MonoBehaviour:
   health: 0
   enemyType: 1
   bullet: {fileID: 5731690185696946548, guid: de46d6b2d7d85d2f6baba37fb603498a, type: 3}
-  healthText: {fileID: 7992639141211524911, guid: 649d9d76d425da185a5d6da0dfa600fb, type: 3}
   chaseSpeed: 5
   curPhase: 0
   freezeMovement: 0
   isInvincible: 0
+  lStrikeBorder: {fileID: 3725844497557720189, guid: 6312e7cf97bb724a88e0b1bb0fea6212, type: 3}
+  lStrikeCenter: {fileID: 3922585798179134493, guid: bb768e865e780b1b2972e41cafe50494, type: 3}
+  rand: 4
+  distanceToMaintain: 25
   curMovementType: 0
+  uselessMinion: 0
 --- !u!50 &8950233173687937706
 Rigidbody2D:
   serializedVersion: 4

@@ -1,22 +1,22 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour {
     [SerializeField] public int health;
-    public enum EnemyType { Regular, BossOne, BossTwo, Shotgun, FleeingTracker, MachineGunner };
+    public enum EnemyType { Regular, BossOne, BossTwo, Shotgun, FleeingTracker, MachineGunner, FatShot, LightningMage, WavyShooter, BossThree };
     [SerializeField] public EnemyType enemyType;
     [SerializeField] private GameObject bullet;
     [SerializeField] private float chaseSpeed = 6f;
     [SerializeField] private int curPhase = 0;
     [SerializeField] public bool freezeMovement = false;
     [SerializeField] public bool isInvincible = false;
+    [SerializeField] private GameObject lStrikeBorder;
+    [SerializeField] private GameObject lStrikeCenter;
+    [SerializeField] private float rand = 1f;
+    [SerializeField] private int lightningCount = 100;
     private enum MovementType { Standing, RunningAtPlayer, RunningAwayFromPlayer, MaintainDistance };
-    private float distanceToMaintain = 50f;
+    [SerializeField] private float distanceToMaintain = 50f;
     private Dictionary<string, Vector2> scales = new() {
         { "small", new Vector2(0.5f, 0.5f) },
         { "medium", new Vector2(1f, 1f) },
@@ -32,6 +32,7 @@ public class Enemy : MonoBehaviour {
     private SpriteRenderer sr;
     private readonly List<float> phaseValues = new();
     private WaveManager waveManager;
+    public bool uselessMinion = false;
     
     private void Start() {
         player = FindObjectOfType<Player>();
@@ -40,12 +41,16 @@ public class Enemy : MonoBehaviour {
         waveManager = FindObjectOfType<WaveManager>();
         curPhase = 0;
         healthDict = new Dictionary<EnemyType, int>() {
-            { EnemyType.Regular, 100 }, 
-            { EnemyType.BossOne, 1000 }, 
-            { EnemyType.BossTwo, 1500 }, 
-            { EnemyType.Shotgun, 150 }, 
-            { EnemyType.FleeingTracker, 100 },
-            { EnemyType.MachineGunner, 100 },  
+            { EnemyType.Regular, 50 },
+            { EnemyType.BossOne, 600 },
+            { EnemyType.BossTwo, 1200 },
+            { EnemyType.Shotgun, 100 }, 
+            { EnemyType.FleeingTracker, 45 },
+            { EnemyType.MachineGunner, 65 },
+            { EnemyType.FatShot, 100 },
+            { EnemyType.LightningMage, 100 },
+            { EnemyType.WavyShooter, 100 },
+            { EnemyType.BossThree, 1800 },
         };
         health = healthDict[enemyType];
         transform.localScale = enemyType switch {
@@ -67,11 +72,27 @@ public class Enemy : MonoBehaviour {
             { EnemyType.Shotgun, new() {
                   { 1f, ShotgunWithChase },
             }},
+            { EnemyType.FatShot, new() {
+                  { 1f, FatShotDistMaintain },
+            }},
+            { EnemyType.LightningMage, new() {
+                  { 1f, LightningSummon },
+            }},
+            { EnemyType.WavyShooter, new() {
+                  { 1f, WavyShots },
+            }},
             { EnemyType.BossOne, new() {
-                { 1f, SingleNonTrackingStationary },
-                { 0.6f, NonTrackingAndTracking },
-                { 0.3f, TrackingShotgun }
-            }}
+                { 1f, SingleNonTrackingWithSlowChase },
+                { 0.6f, TrackingShotgun },
+                { 0.3f, NonTrackingAndTracking }
+            }},
+            { EnemyType.BossTwo, new() {
+                { 1f, SpiralDoom }
+            }},
+            { EnemyType.BossThree, new() {
+                { 1f, LightningChase },
+                { 0.3f, LightningChaseWithWaves }
+            }},
         };
         foreach (float percentage in patterns[enemyType].Keys) {
             phaseValues.Add(percentage);
@@ -87,12 +108,12 @@ public class Enemy : MonoBehaviour {
                 MoveToPlayer(false);
             }
             else if (curMovementType == MovementType.RunningAwayFromPlayer) {
-                MoveToPlayer(true)
+                MoveToPlayer(true);
             }
             else if (curMovementType == MovementType.MaintainDistance) { 
                 if (DistFormula(transform.position, player.transform.position) > distanceToMaintain) { 
                     MoveToPlayer(false);
-                })
+                }
                 else { 
                     MoveToPlayer(true);
                 }
@@ -115,8 +136,8 @@ public class Enemy : MonoBehaviour {
         }
         else { 
             r.velocity = new Vector2(
-                Mathf.Cos(theta) * chaseSpeed,
-                Mathf.Sin(theta) * chaseSpeed
+                Mathf.Cos(theta) * -chaseSpeed,
+                Mathf.Sin(theta) * -chaseSpeed
             );
         }
     }
@@ -132,6 +153,9 @@ public class Enemy : MonoBehaviour {
             }
             health -= amount;
             if (health <= 0) { waveManager.DecrementCount(gameObject); }
+            if (enemyType is EnemyType.BossOne or EnemyType.BossTwo) {
+                waveManager.ScaleBossHP(health / (float)healthDict[enemyType]);
+            }
         }
     }
     
@@ -145,7 +169,7 @@ public class Enemy : MonoBehaviour {
         freezeMovement = false;
     }
 
-    private void FireProjectile(int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, Bullet.Behavior behavior, Color color) {
+    private void FireProjectile(int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, Bullet.Behavior behavior, Color color, bool isWavy=false) {
         GameObject fired = Instantiate(bullet, transform.position, Quaternion.identity);
         fired.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
         fired.GetComponent<Rigidbody2D>().velocity = new(
@@ -159,15 +183,53 @@ public class Enemy : MonoBehaviour {
         b.behavior = behavior;
         fired.GetComponent<SpriteRenderer>().color = color;
         fired.transform.localScale = scale;
+        if (isWavy) {
+            StartCoroutine(WaveBullet(fired));
+        }
+    }
+    
+    private IEnumerator WaveBullet(GameObject g) {
+        Bullet b = g.GetComponent<Bullet>();
+        float theta = b.firedAngle;
+        Rigidbody2D br = b.GetComponent<Rigidbody2D>();
+        float rise = Mathf.Sin(theta);
+        float run = Mathf.Cos(theta);
+        Vector2 perpendicular = new(rise, -run);
+        while (true) {
+            for (int i = 0; i < 10; i++) {
+                yield return new WaitForSeconds(0.04f);
+                if (br == null) { yield break; }
+                br.velocity += perpendicular;
+            }
+            yield return new WaitForSeconds(0.1f);
+            for (int i = 0; i < 10; i++) {
+                yield return new WaitForSeconds(0.04f);
+                if (br == null) { yield break; }
+                br.velocity -= perpendicular;
+            }
+            yield return new WaitForSeconds(0.1f);
+            for (int i = 0; i < 10; i++) {
+                yield return new WaitForSeconds(0.04f);
+                if (br == null) { yield break; }
+                br.velocity -= perpendicular;
+            }
+            yield return new WaitForSeconds(0.1f);
+            for (int i = 0; i < 10; i++) {
+                yield return new WaitForSeconds(0.04f);
+                if (br == null) { yield break; }
+                br.velocity += perpendicular;
+            }
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
-    private IEnumerator SingleNonTrackingStationary() {
+    private IEnumerator SpiralDoom() {
         curMovementType = MovementType.Standing;
+        float theta = 0;
         while (true) {
-            yield return new WaitForSeconds(0.4f);
-            Vector2 lookDirection = player.transform.position - transform.position;
-            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+            yield return new WaitForSeconds(0.25f);
+            theta += 13f * Mathf.Deg2Rad;
+            Shotgun(6, 8, 5, 0f, theta, scales["medium"], 60, Bullet.Behavior.Break, Colors.magenta);
         }
     }
     
@@ -178,6 +240,37 @@ public class Enemy : MonoBehaviour {
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+        }
+    }
+    
+    private IEnumerator SingleNonTrackingWithSlowChase() {
+        curMovementType = MovementType.RunningAtPlayer;
+        chaseSpeed = 2f;
+        while (true) {
+            yield return new WaitForSeconds(0.6f);
+            Vector2 lookDirection = player.transform.position - transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+        }
+    }
+    
+    private IEnumerator WavyShots() {
+        curMovementType = MovementType.MaintainDistance;
+        while (true) {
+            yield return new WaitForSeconds(0.6f);
+            Vector2 lookDirection = player.transform.position - transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(10, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.blue, true);
+        }
+    }
+    
+    private IEnumerator FatShotDistMaintain() {
+        curMovementType = MovementType.MaintainDistance;
+        while (true) {
+            yield return new WaitForSeconds(2.5f);
+            Vector2 lookDirection = player.transform.position - transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(10, 30, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple);
         }
     }
     
@@ -192,29 +285,32 @@ public class Enemy : MonoBehaviour {
     }
     
     private IEnumerator NonTrackingAndTracking() {
-        curMovementType = MovementType.Standing;
+        curMovementType = MovementType.MaintainDistance;
         while (true) {
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.5f);
             Vector2 lookDirection = player.transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             FireProjectile(15, 5, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.red);
+            yield return new WaitForSeconds(0.3f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 3f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+            FireProjectile(10, 10, 1f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
         }
     }
 
     private IEnumerator TrackingShotgun() {
-        curMovementType = MovementType.Standing;
+        curMovementType = MovementType.RunningAtPlayer;
+        chaseSpeed = 3f;
         while (true) {
             Vector2 lookDirection;
             float theta;
             for (int i = 0; i < 3; i++) {
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(0.5f);
                 lookDirection = player.transform.position - transform.position;
                 theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
                 FireProjectile(15, 5, 7f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
             }
+            yield return new WaitForSeconds(0.5f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             Shotgun(5, 20, 5, 0f, theta, scales["medium"], 12, Bullet.Behavior.Break, Colors.green);
@@ -236,27 +332,84 @@ public class Enemy : MonoBehaviour {
     }
 
     private IEnumerator ShotgunWithChase() {
-        curMovementType = MovementType.Standing;
+        curMovementType = MovementType.RunningAtPlayer;
         while (true) {
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 15, 3, 0f, theta, scales["medium"], 12, Bullet.Behavior.Break, Colors.green);
-            yield return new WaitForSeconds(0.1f);
+            Shotgun(5, 8, 3, 0f, theta, scales["medium"], 20, Bullet.Behavior.Break, Colors.green);
+            yield return new WaitForSeconds(2.5f);
         }
     }
 
     private IEnumerator MachineGun() {
         curMovementType = MovementType.MaintainDistance;
         while (true) {
-            Vector2 lookDirection = (Vector2)player.transform.position;
+            Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
             yield return new WaitForSeconds(0.5f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(20, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
             yield return new WaitForSeconds(0.5f);
         }
+    }
+    
+    private IEnumerator LightningSummon() {
+        curMovementType = MovementType.MaintainDistance;
+        while (true) {
+            StartCoroutine(SummonAtPos(player.transform.position));
+            yield return new WaitForSeconds(2f);
+        }
+    }
+    
+    private IEnumerator LightningChase() {
+        curMovementType = MovementType.RunningAtPlayer;
+        while (true) {
+            for (int i = 0; i < lightningCount; i++) {
+                StartCoroutine(SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f))));
+            }
+            Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green);
+            yield return new WaitForSeconds(1.75f);
+        }
+    }
+    
+    private IEnumerator LightningChaseWithWaves() {
+        curMovementType = MovementType.RunningAtPlayer;
+        while (true) {
+            for (int i = 0; i < lightningCount; i++) {
+                StartCoroutine(SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f))));
+            }
+            Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
+            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green);
+            lookDirection = player.transform.position;
+            theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
+            FireProjectile(5, 30, 3f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple, true);
+            yield return new WaitForSeconds(1.75f);
+        }
+    }
+    
+    private IEnumerator SummonAtPos(Vector3 pos) {
+        Vector2 drop = (Vector2)pos + new Vector2(Random.Range(-rand, rand), Random.Range(-rand, rand));
+        GameObject b = Instantiate(lStrikeBorder, drop, Quaternion.identity);
+        GameObject c = Instantiate(lStrikeCenter, drop, Quaternion.identity);
+        float initial = c.transform.localScale.x;
+        for (int i = 0; i < (2f*10); i++) {
+            c.transform.localScale -= new Vector3(initial/(2f*10), initial/(2f*10), 0f);
+            yield return new WaitForSeconds(0.1f);
+        }
+        GameObject l = Instantiate(bullet, drop, Quaternion.identity);
+        l.transform.localScale = new Vector3(3f, 3f, 1f);
+        l.GetComponent<Bullet>().damage = 30;
+        l.GetComponent<Bullet>().behavior = Bullet.Behavior.Linger;
+        l.GetComponent<SpriteRenderer>().color = Colors.red;
+        yield return new WaitForSeconds(0.1f);
+        Destroy(c);
+        Destroy(l);
+        Destroy(b);
     }
 
     private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color) {
@@ -300,6 +453,6 @@ public class Enemy : MonoBehaviour {
     }
 
     private float DistFormula(Vector3 pos1, Vector3 pos2) {
-        return Math.Sqrt(pos1.x * pos1x + pos1.y  * pos1.y);
+        return Mathf.Sqrt((pos1.x - pos2.x) * (pos1.x - pos2.x) + (pos1.y - pos2.y) * (pos1.y - pos2.y));
     }
 }

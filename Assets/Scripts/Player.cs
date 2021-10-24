@@ -1,18 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-    [SerializeField] private int unlockedSpells = 1;
+    [SerializeField] private int unlockedSpells = 0;
     [SerializeField] private List<GameObject> spellIndicatorList;
+    [SerializeField] private List<Sprite> staffSprites;
+    [SerializeField] private int curStaff = 0;
+    [SerializeField] private List<float> attackSpeeds = new() { 0.4f, 0.2f, 0.4f, 0.4f };
+    [SerializeField] private List<int> attackDmgs = new() { 5, 5, 5, 5 };
     [SerializeField] private float moveSpeed = 15f;
-    [SerializeField] private float attackDelay = 0.4f;
     [SerializeField] private bool canAttack = true;
     [SerializeField] private float projectileSpeed = 25f;
-    [SerializeField] public int health = 100;
-    [SerializeField] public int attackDamage = 10;
+    [SerializeField] public int health = 200;
     [SerializeField] private GameObject bullet;
     [SerializeField] private GameObject roundBullet;
     [SerializeField] private TextMeshProUGUI healthText;
@@ -73,23 +77,24 @@ public class Player : MonoBehaviour {
     private delegate void Spell(int spellIndex);
     [SerializeField] private List<Spell> spellList;
     [SerializeField] private List<float> cooldownList;
+    private ItemFrame basicAttackItemFrame;
+    private Coroutine shootingCoro;
 
     private void Start () {
         body = GetComponent<Rigidbody2D>();
-        spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, GenericShotgun, ConvergingSpell, RockRise, IceTomb };
-        cooldownList = new List<float> { attackDelay, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, gShotgunCooldown, cSpellCooldown, rockRiseCooldown, iceTombCooldown };
-        healthText.text = $"Player: {health} HP";
+        spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, RockRise, ConvergingSpell, GenericShotgun, IceTomb };
+        cooldownList = new List<float> { 0, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, rockRiseCooldown, cSpellCooldown, gShotgunCooldown, iceTombCooldown };
+        healthText.text = $"{health} HP";
         StartCoroutine(EnableFirstSpells());
+        basicAttackItemFrame = spellIndicatorList[0].GetComponent<ItemFrame>();
     }
     
     private IEnumerator EnableFirstSpells() {
         yield return new WaitForSeconds(0.1f);
-        spellIndicatorList[0].GetComponent<ItemFrame>().dropper.SetActive(false);
-        spellIndicatorList[0].GetComponent<ItemFrame>().cover.SetActive(false);
-        spellIndicatorList[0].GetComponent<ItemFrame>().spellIcon.SetActive(true);
-        spellIndicatorList[1].GetComponent<ItemFrame>().dropper.SetActive(false);
-        spellIndicatorList[1].GetComponent<ItemFrame>().cover.SetActive(false);
-        spellIndicatorList[1].GetComponent<ItemFrame>().spellIcon.SetActive(true);
+        basicAttackItemFrame.dropper.SetActive(false);
+        basicAttackItemFrame.cover.SetActive(false);
+        basicAttackItemFrame.spellIcon.SetActive(true);
+        basicAttackItemFrame.spellIcon.GetComponent<SpriteRenderer>().sprite = staffSprites[curStaff];
     }
 
     private void Update() {
@@ -107,18 +112,27 @@ public class Player : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
         if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
         // flamethrower, forcepush, ice volley, spin attack, wind slash, boomerang, bounding box
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            UnlockNextSpell();
-        }
+        if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
+        if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
     }
     
     private void PutSpellOnCooldown(int i) {
         spellIndicatorList[i].GetComponent<ItemFrame>().PutOnCooldownFor(cooldownList[i]);
     }
     
-    private void UnlockNextSpell() {
+    public void UnlockNextSpell() {
+        print("spell unlocked!");
         unlockedSpells++;
         spellIndicatorList[unlockedSpells].GetComponent<ItemFrame>().Unlock();
+    }
+    
+    public void UnlockNextStaff() {
+        print("staff unlocked!");
+        curStaff++;
+        try { basicAttackItemFrame.spellIcon.GetComponent<SpriteRenderer>().sprite = staffSprites[curStaff]; } catch {}
+        if (shootingCoro != null) { StopCoroutine(shootingCoro); }
+        canAttack = true;
+        AttemptAttack();
     }
     
     private void LightningStrike(int spellIndex) { StartCoroutine(LightningStrikeCoro(spellIndex)); }
@@ -258,7 +272,7 @@ public class Player : MonoBehaviour {
                 roundBullet
             );
             yield return new WaitForSeconds(0.5f);
-            Destroy(c.gameObject);
+            if (c != null) { Destroy(c.gameObject); }
             Destroy(b);
         }
     }
@@ -409,19 +423,77 @@ public class Player : MonoBehaviour {
     private void AttemptAttack() {
         if (canAttack) {
             canAttack = false;
-            StartCoroutine(RefreshAttack());
+            shootingCoro = StartCoroutine(RefreshAttack());
         }
         else { return; }
-        FireProjectile(
-            projectileSpeed, 
-            attackDamage, 
-            0f, 
-            GetAngleToCursor(transform.position), 
-            scales["medium"], 
-            Bullet.Behavior.Break, 
-            Colors.blue, 
-            transform.position
-        );
+        switch (curStaff) {
+            case 0:
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[0], 
+                    0f, 
+                    GetAngleToCursor(transform.position), 
+                    scales["medium"], 
+                    Bullet.Behavior.Break, 
+                    Colors.green, 
+                    transform.position
+                );
+                break;
+            case 1:
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[1], 
+                    0f, 
+                    GetAngleToCursor(transform.position), 
+                    scales["medium"], 
+                    Bullet.Behavior.Break, 
+                    Colors.blue, 
+                    transform.position
+                );
+                break;
+            // case 2:
+            //     FireProjectile(
+            //         projectileSpeed, 
+            //         attackDmgs[2], 
+            //         0f, 
+            //         GetAngleToCursor(transform.position), 
+            //         scales["medium"], 
+            //         Bullet.Behavior.Linger, 
+            //         Colors.red, 
+            //         transform.position
+            //     );
+            //     break;
+            case 2:
+                float offsetAmount = 1.5f;
+                float theta = GetAngleToCursor(transform.position);
+                float rise = Mathf.Sin(theta);
+                float run = Mathf.Cos(theta);
+                Vector2 perpendicular = new(rise*offsetAmount, -run*offsetAmount);
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[3], 
+                    0f, 
+                    GetAngleToCursor((Vector2)transform.position + perpendicular), 
+                    scales["medium"], 
+                    Bullet.Behavior.Break, 
+                    Colors.white, 
+                    (Vector2)transform.position + perpendicular
+                );
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[3], 
+                    0f, 
+                    GetAngleToCursor((Vector2)transform.position - perpendicular), 
+                    scales["medium"], 
+                    Bullet.Behavior.Break, 
+                    Colors.white, 
+                    (Vector2)transform.position - perpendicular
+                );
+                break;
+            default:
+                print("invalid staff detected!"); 
+                break;
+        }
     }
     
     private float GetAngleToCursor(Vector3 pos) { 
@@ -447,20 +519,16 @@ public class Player : MonoBehaviour {
     }
 
     private IEnumerator RefreshAttack() {
-        yield return new WaitForSeconds(attackDelay);
-        canAttack = true;
-    }
-        
-    private void OnTriggerEnter2D(Collider2D other) {
-        GameObject g = other.gameObject;
-        switch (g.name) {
-            case "enemy_bullet(Clone)":
-                Destroy(g);
-                ChangeHealthBy(g.GetComponent<Bullet>().damage);
-                break;
-            case "test":
-                break;
+        basicAttackItemFrame.dropper.SetActive(true);
+        basicAttackItemFrame.cover.SetActive(true);
+        for (int i = 0; i < attackSpeeds[curStaff]*9; i++) {
+            basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(attackSpeeds[curStaff] * 10));
+            yield return new WaitForSeconds(0.1f);
         }
+        basicAttackItemFrame.dropper.SetActive(false);
+        basicAttackItemFrame.cover.SetActive(false);
+        yield return new WaitForSeconds(0.1f);
+        canAttack = true;
     }
 
     public void ChangeHealthBy(int amount) {

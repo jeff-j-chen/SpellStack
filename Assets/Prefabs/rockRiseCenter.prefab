@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4191931971593184893}
   - component: {fileID: 7934442661443339422}
   - component: {fileID: 4153735405129468112}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: rockRiseCenter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
