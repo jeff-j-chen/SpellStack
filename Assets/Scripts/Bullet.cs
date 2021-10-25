@@ -11,9 +11,11 @@ public class Bullet : MonoBehaviour {
     private Rigidbody2D r;
     public enum Behavior { Break, Linger }
     public Behavior behavior = Behavior.Break;
+    private SoundManager soundManager;
 
-    private void Start() {
+    private void Start()  { 
         r = GetComponent<Rigidbody2D>();
+        soundManager = FindObjectOfType<SoundManager>();
         if (acceleration > 0) {
             StartCoroutine(RampUpSpeed());
         }
@@ -43,6 +45,7 @@ public class Bullet : MonoBehaviour {
                 break;
             case "rockRiseCenter(Clone)":
             case "iceshield(Clone)":
+                if (soundManager != null) {soundManager.PlayClip("blocked");}
                 Destroy(gameObject);
                 break;
             case "test":

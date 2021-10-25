@@ -365,8 +365,12 @@
 "Assets/Scripts/Colors.cs"
 "Assets/Scripts/Destroyer.cs"
 "Assets/Scripts/Enemy.cs"
+"Assets/Scripts/Fader.cs"
+"Assets/Scripts/Initiate.cs"
 "Assets/Scripts/ItemFrame.cs"
 "Assets/Scripts/Player.cs"
+"Assets/Scripts/RetryButton.cs"
+"Assets/Scripts/SoundManager.cs"
 "Assets/Scripts/WaveManager.cs"
 -langversion:9.0
 

@@ -11,9 +11,6 @@ public class Enemy : MonoBehaviour {
     [SerializeField] private int curPhase = 0;
     [SerializeField] public bool freezeMovement = false;
     [SerializeField] public bool isInvincible = false;
-    [SerializeField] private GameObject lStrikeBorder;
-    [SerializeField] private GameObject lStrikeCenter;
-    [SerializeField] private float rand = 1f;
     [SerializeField] private int lightningCount = 100;
     private enum MovementType { Standing, RunningAtPlayer, RunningAwayFromPlayer, MaintainDistance };
     [SerializeField] private float distanceToMaintain = 50f;
@@ -33,30 +30,39 @@ public class Enemy : MonoBehaviour {
     private readonly List<float> phaseValues = new();
     private WaveManager waveManager;
     public bool uselessMinion = false;
+    private SoundManager soundManager;
     
     private void Start() {
         player = FindObjectOfType<Player>();
         r = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         waveManager = FindObjectOfType<WaveManager>();
+        soundManager = FindObjectOfType<SoundManager>();
         curPhase = 0;
         healthDict = new Dictionary<EnemyType, int>() {
             { EnemyType.Regular, 50 },
-            { EnemyType.BossOne, 600 },
-            { EnemyType.BossTwo, 1200 },
-            { EnemyType.Shotgun, 100 }, 
             { EnemyType.FleeingTracker, 45 },
             { EnemyType.MachineGunner, 65 },
-            { EnemyType.FatShot, 100 },
-            { EnemyType.LightningMage, 100 },
-            { EnemyType.WavyShooter, 100 },
+            { EnemyType.Shotgun, 75 }, 
+            { EnemyType.LightningMage, 65 },
+            { EnemyType.FatShot, 75 },
+            { EnemyType.WavyShooter, 85 },
+            { EnemyType.BossOne, 600 },
+            { EnemyType.BossTwo, 1200 },
             { EnemyType.BossThree, 1800 },
         };
         health = healthDict[enemyType];
         transform.localScale = enemyType switch {
             EnemyType.Regular => new Vector3(1.25f, 1.25f),
+            EnemyType.Shotgun => new Vector3(1.25f, 1.25f),
+            EnemyType.FleeingTracker => new Vector3(1.25f, 1.25f),
+            EnemyType.MachineGunner => new Vector3(1.25f, 1.25f),
+            EnemyType.FatShot => new Vector3(1.25f, 1.25f),
+            EnemyType.LightningMage => new Vector3(1.25f, 1.25f),
+            EnemyType.WavyShooter => new Vector3(1.25f, 1.25f),
             EnemyType.BossOne => new Vector3(2, 2f),
             EnemyType.BossTwo => new Vector3(2, 2f),
+            EnemyType.BossThree => new Vector3(2, 2f),
             _ => new Vector3(1f, 1f),
         };
         patterns = new Dictionary<EnemyType, Dictionary<float, AttackPattern>> {
@@ -152,8 +158,14 @@ public class Enemy : MonoBehaviour {
                 }
             }
             health -= amount;
-            if (health <= 0) { waveManager.DecrementCount(gameObject); }
-            if (enemyType is EnemyType.BossOne or EnemyType.BossTwo) {
+            if (health <= 0) { 
+                waveManager.DecrementCount(gameObject); 
+                soundManager.PlayClip("edeath");
+            }
+            else {
+                soundManager.PlayClip("ehurt");
+            }
+            if (enemyType is EnemyType.BossOne or EnemyType.BossTwo or EnemyType.BossThree) {
                 waveManager.ScaleBossHP(health / (float)healthDict[enemyType]);
             }
         }
@@ -358,7 +370,7 @@ public class Enemy : MonoBehaviour {
     private IEnumerator LightningSummon() {
         curMovementType = MovementType.MaintainDistance;
         while (true) {
-            StartCoroutine(SummonAtPos(player.transform.position));
+            waveManager.SummonAtPos(player.transform.position);
             yield return new WaitForSeconds(2f);
         }
     }
@@ -367,12 +379,12 @@ public class Enemy : MonoBehaviour {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
             for (int i = 0; i < lightningCount; i++) {
-                StartCoroutine(SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f))));
+                waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green);
-            yield return new WaitForSeconds(1.75f);
+            yield return new WaitForSeconds(2f);
         }
     }
     
@@ -380,41 +392,23 @@ public class Enemy : MonoBehaviour {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
             for (int i = 0; i < lightningCount; i++) {
-                StartCoroutine(SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f))));
+                waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green);
+            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green, true);
             lookDirection = player.transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(5, 30, 3f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple, true);
-            yield return new WaitForSeconds(1.75f);
+            FireProjectile(5, 30, 1f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple);
+            yield return new WaitForSeconds(2f);
         }
     }
     
-    private IEnumerator SummonAtPos(Vector3 pos) {
-        Vector2 drop = (Vector2)pos + new Vector2(Random.Range(-rand, rand), Random.Range(-rand, rand));
-        GameObject b = Instantiate(lStrikeBorder, drop, Quaternion.identity);
-        GameObject c = Instantiate(lStrikeCenter, drop, Quaternion.identity);
-        float initial = c.transform.localScale.x;
-        for (int i = 0; i < (2f*10); i++) {
-            c.transform.localScale -= new Vector3(initial/(2f*10), initial/(2f*10), 0f);
-            yield return new WaitForSeconds(0.1f);
-        }
-        GameObject l = Instantiate(bullet, drop, Quaternion.identity);
-        l.transform.localScale = new Vector3(3f, 3f, 1f);
-        l.GetComponent<Bullet>().damage = 30;
-        l.GetComponent<Bullet>().behavior = Bullet.Behavior.Linger;
-        l.GetComponent<SpriteRenderer>().color = Colors.red;
-        yield return new WaitForSeconds(0.1f);
-        Destroy(c);
-        Destroy(l);
-        Destroy(b);
-    }
 
-    private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color) {
+
+    private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color, bool isWavy=false) {
         for (int i = 0; i < count; i++) {
-            FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scales["medium"], behavior, color);
+            FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scale, behavior, color, isWavy);
         }
     }
 

@@ -1,6 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -16,10 +16,21 @@ public class Player : MonoBehaviour {
     [SerializeField] private float moveSpeed = 15f;
     [SerializeField] private bool canAttack = true;
     [SerializeField] private float projectileSpeed = 25f;
+    [SerializeField] public int startHealth = 200;
     [SerializeField] public int health = 200;
+    [SerializeField] public int healAmount = 2;
+    [SerializeField] private GameObject playerHP;
     [SerializeField] private GameObject bullet;
+    [SerializeField] private GameObject fireball;
+    [SerializeField] private GameObject lstrikeGO;
+    [SerializeField] private GameObject plantRootGO;
+    [SerializeField] private GameObject cspellGO;
+    [SerializeField] private GameObject shotgunGO;
+    [SerializeField] private GameObject icetombGO;
+    [SerializeField] private GameObject staff0shoot;
+    [SerializeField] private GameObject staff1shoot;
+    [SerializeField] private GameObject staff2shoot;
     [SerializeField] private GameObject roundBullet;
-    [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private GameObject lStrikeBorder;
     [SerializeField] private GameObject lStrikeCenter;
     [SerializeField] private GameObject rockRiseCenter;
@@ -74,21 +85,37 @@ public class Player : MonoBehaviour {
     private float horizontal;
     private float vertical;
     private const float MoveLimiter = 0.7f;
+    private bool lockActions = false;
+    private bool invincible;
+    
     private delegate void Spell(int spellIndex);
     [SerializeField] private List<Spell> spellList;
     [SerializeField] private List<float> cooldownList;
     private ItemFrame basicAttackItemFrame;
     private Coroutine shootingCoro;
+    private SoundManager soundManager;
 
     private void Start () {
+        lockActions = false;
+        invincible = false;
         body = GetComponent<Rigidbody2D>();
+        soundManager = FindObjectOfType<SoundManager>();
         spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, RockRise, ConvergingSpell, GenericShotgun, IceTomb };
         cooldownList = new List<float> { 0, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, rockRiseCooldown, cSpellCooldown, gShotgunCooldown, iceTombCooldown };
-        healthText.text = $"{health} HP";
         StartCoroutine(EnableFirstSpells());
         basicAttackItemFrame = spellIndicatorList[0].GetComponent<ItemFrame>();
+        StartCoroutine(HealthRegen());
     }
     
+    private IEnumerator HealthRegen() {
+        while (!invincible) {
+            yield return new WaitForSeconds(1f);
+            
+            if (health <= startHealth - healAmount) { health += healAmount; }
+            playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
+        }
+    }
+
     private IEnumerator EnableFirstSpells() {
         yield return new WaitForSeconds(0.1f);
         basicAttackItemFrame.dropper.SetActive(false);
@@ -100,20 +127,21 @@ public class Player : MonoBehaviour {
     private void Update() {
         horizontal = Input.GetAxisRaw("Horizontal"); 
         vertical = Input.GetAxisRaw("Vertical");
-        GetComponent<SpriteRenderer>().color = Colors.pastelGreen;
-        if (Input.GetMouseButton(0)) { AttemptAttack(); }
-        if (Input.GetKeyDown(KeyCode.Alpha1)) { if(unlockedSpells >= 1) { spellList[0](0); } } 
-        if (Input.GetKeyDown(KeyCode.Alpha2)) { if(unlockedSpells >= 2) { spellList[1](1); } }
-        if (Input.GetKeyDown(KeyCode.Alpha3)) { if(unlockedSpells >= 3) { spellList[2](2); } }
-        if (Input.GetKeyDown(KeyCode.Alpha4)) { if(unlockedSpells >= 4) { spellList[3](3); } }
-        if (Input.GetKeyDown(KeyCode.Alpha5)) { if(unlockedSpells >= 5) { spellList[4](4); } }
-        if (Input.GetKeyDown(KeyCode.Alpha6)) { if(unlockedSpells >= 6) { spellList[5](5); } }
-        if (Input.GetKeyDown(KeyCode.Q)) {  if(unlockedSpells >= 7) { spellList[6](6); } }
-        if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
-        if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
-        // flamethrower, forcepush, ice volley, spin attack, wind slash, boomerang, bounding box
-        if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
-        if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
+        if (!lockActions) {
+            if (Input.GetMouseButton(0)) { AttemptAttack(); }
+            if (Input.GetKeyDown(KeyCode.Alpha1)) { if(unlockedSpells >= 1) { spellList[0](0); } } 
+            if (Input.GetKeyDown(KeyCode.Alpha2)) { if(unlockedSpells >= 2) { spellList[1](1); } }
+            if (Input.GetKeyDown(KeyCode.Alpha3)) { if(unlockedSpells >= 3) { spellList[2](2); } }
+            if (Input.GetKeyDown(KeyCode.Alpha4)) { if(unlockedSpells >= 4) { spellList[3](3); } }
+            if (Input.GetKeyDown(KeyCode.Alpha5)) { if(unlockedSpells >= 5) { spellList[4](4); } }
+            if (Input.GetKeyDown(KeyCode.Alpha6)) { if(unlockedSpells >= 6) { spellList[5](5); } }
+            if (Input.GetKeyDown(KeyCode.Q)) {  if(unlockedSpells >= 7) { spellList[6](6); } }
+            if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
+            if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
+            // flamethrower, forcepush, ice volley, spin attack, wind slash, boomerang, bounding box
+            if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
+            if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
+        }
     }
     
     private void PutSpellOnCooldown(int i) {
@@ -121,13 +149,11 @@ public class Player : MonoBehaviour {
     }
     
     public void UnlockNextSpell() {
-        print("spell unlocked!");
         unlockedSpells++;
         spellIndicatorList[unlockedSpells].GetComponent<ItemFrame>().Unlock();
     }
     
     public void UnlockNextStaff() {
-        print("staff unlocked!");
         curStaff++;
         try { basicAttackItemFrame.spellIcon.GetComponent<SpriteRenderer>().sprite = staffSprites[curStaff]; } catch {}
         if (shootingCoro != null) { StopCoroutine(shootingCoro); }
@@ -139,6 +165,7 @@ public class Player : MonoBehaviour {
     // area marked, aoe strike down after a delay
     private IEnumerator LightningStrikeCoro(int spellIndex) {
         if (!lightningUsed) {
+            soundManager.PlayClip("lightningbuildup");
             PutSpellOnCooldown(spellIndex + 1);
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             lightningUsed = true;
@@ -150,12 +177,11 @@ public class Player : MonoBehaviour {
                 c.transform.localScale -= new Vector3(initial/(lightningDelay*10), initial/(lightningDelay*10), 0f);
                 yield return new WaitForSeconds(0.1f);
             }
-            GameObject l = Instantiate(bullet, drop, Quaternion.identity);
-            l.transform.localScale = new Vector3(3f, 3f, 1f);
+            GameObject l = Instantiate(lstrikeGO, drop + new Vector2(0f, 1.5f), Quaternion.identity);
             l.GetComponent<Bullet>().damage = lightningDamage;
             l.GetComponent<Bullet>().behavior = Bullet.Behavior.Linger;
-            l.GetComponent<SpriteRenderer>().color = Colors.yellow;
-            yield return new WaitForSeconds(0.1f);
+            soundManager.PlayClip("lightning");
+            yield return new WaitForSeconds(0.3f);
             Destroy(c);
             Destroy(l);
             Destroy(b);
@@ -165,6 +191,7 @@ public class Player : MonoBehaviour {
     // slow moving piercing projectile
     private void Fireball(int spellIndex) {
         if (!fireballUsed) {
+            soundManager.PlayClip("fireball");
             PutSpellOnCooldown(spellIndex + 1);
             fireballUsed = true;
             StartCoroutine(CountdownCooldownFor("fireball"));
@@ -173,10 +200,11 @@ public class Player : MonoBehaviour {
                 fireballDamage, 
                 0f, 
                 GetAngleToCursor(transform.position), 
-                scales["large"], 
+                new Vector2(0, 0), 
                 Bullet.Behavior.Linger, 
-                Colors.orange, 
-                transform.position
+                Color.white, 
+                transform.position,
+                fireball
             );
         }
     }
@@ -184,6 +212,7 @@ public class Player : MonoBehaviour {
     // simple shotgun
     private void GenericShotgun(int spellIndex) {
         if (!gShotgunUsed) {
+            soundManager.PlayClip("shotgun");
             PutSpellOnCooldown(spellIndex + 1);
             gShotgunUsed = true;
             StartCoroutine(CountdownCooldownFor("gShotgun"));
@@ -193,17 +222,19 @@ public class Player : MonoBehaviour {
                 gShotgunDamage, 
                 0f, 
                 GetAngleToCursor(transform.position), 
-                scales["medium"], 
+                new Vector2(0, 0), 
                 gShotgunSpread, 
                 Bullet.Behavior.Break, 
-                Colors.white, 
-                transform.position
+                Color.white, 
+                transform.position,
+                shotgunGO
             );
         }
     }
 
     private void PlantRoot(int spellIndex) {
         if (!plantRootUsed) {
+            soundManager.PlayClip("plantroot");
             PutSpellOnCooldown(spellIndex + 1);
             plantRootUsed = true;
             StartCoroutine(CountdownCooldownFor("plantRoot"));
@@ -213,10 +244,11 @@ public class Player : MonoBehaviour {
                 0f, 
                 GetAngleToCursor(
                 transform.position), 
-                scales["small"], 
+                new Vector2(0, 0), 
                 Bullet.Behavior.Break, 
-                Colors.green, 
-                transform.position
+                Color.white, 
+                transform.position,
+                plantRootGO
             );
             b.rootDuration = plantRootDuration;
         }
@@ -225,6 +257,7 @@ public class Player : MonoBehaviour {
     private void WaterPull(int spellIndex) { StartCoroutine(WaterPullCoro(spellIndex)); }
     private IEnumerator WaterPullCoro(int spellIndex) { 
         if (!waterPullUsed) {
+            soundManager.PlayClip("waterpull");
             PutSpellOnCooldown(spellIndex + 1);
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             waterPullUsed = true;
@@ -244,6 +277,7 @@ public class Player : MonoBehaviour {
             float initial = c.gameObject.transform.localScale.x;
             for (int i = 0; i < (waterPullDelay*20); i++) {
                 b.gameObject.transform.localScale -= new Vector3(initial/(waterPullDelay*20), initial/(waterPullDelay*20), 0f);
+                b.gameObject.transform.Rotate(0, 0, 18);
                 yield return new WaitForSeconds(0.05f);
             }
             Destroy(b);
@@ -253,6 +287,7 @@ public class Player : MonoBehaviour {
     private void RockRise(int spellIndex) { StartCoroutine(RockRiseCoro(spellIndex)); }
     private IEnumerator RockRiseCoro(int spellIndex) { 
         if (!rockRiseUsed) {
+            soundManager.PlayClip("rockrise");
             PutSpellOnCooldown(spellIndex + 1);
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             rockRiseUsed = true;
@@ -271,7 +306,7 @@ public class Player : MonoBehaviour {
                 drop,
                 roundBullet
             );
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1f);
             if (c != null) { Destroy(c.gameObject); }
             Destroy(b);
         }
@@ -279,37 +314,42 @@ public class Player : MonoBehaviour {
 
     private void ConvergingSpell(int spellIndex) { 
         if (!cSpellUsed)  {
+            soundManager.PlayClip("cspell");
             PutSpellOnCooldown(spellIndex + 1);
             cSpellUsed = true;
             StartCoroutine(CountdownCooldownFor("cSpell"));
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             FireProjectile(
                 cSpellSpeed, cSpellDamage, cSpellAcc, -Mathf.PI/2, 
-                scales["small"],
+                new Vector2(0, 0),
                 Bullet.Behavior.Break, 
-                Colors.white, 
-                drop + new Vector2(0, cSpellRadius)
+                Color.white, 
+                drop + new Vector2(0, cSpellRadius),
+                cspellGO
             );
             FireProjectile(
                 cSpellSpeed, cSpellDamage, cSpellAcc, Mathf.PI/2, 
-                scales["small"],
+                new Vector2(0, 0),
                 Bullet.Behavior.Break, 
-                Colors.white, 
-                drop + new Vector2(0, -cSpellRadius)
+                Color.white, 
+                drop + new Vector2(0, -cSpellRadius),
+                cspellGO
             );
             FireProjectile(
                 cSpellSpeed, cSpellDamage, cSpellAcc, Mathf.PI, 
-                scales["small"],
+                new Vector2(0, 0),
                 Bullet.Behavior.Break, 
-                Colors.white, 
-                drop + new Vector2(cSpellRadius, 0)
+                Color.white, 
+                drop + new Vector2(cSpellRadius, 0),
+                cspellGO
             );
             FireProjectile(
                 cSpellSpeed, cSpellDamage, cSpellAcc, 0, 
-                scales["small"],
+                new Vector2(0, 0),
                 Bullet.Behavior.Break, 
-                Colors.white, 
-                drop + new Vector2(-cSpellRadius, 0)
+                Color.white, 
+                drop + new Vector2(-cSpellRadius, 0),
+                cspellGO
             );
         }
     }
@@ -317,6 +357,7 @@ public class Player : MonoBehaviour {
     private void IceShield(int spellIndex) { StartCoroutine(IceShieldCoro(spellIndex)); }
     private IEnumerator IceShieldCoro(int spellIndex) {
         if (!iceShieldUsed) {
+            soundManager.PlayClip("icesound");
             PutSpellOnCooldown(spellIndex + 1);
             iceShieldUsed = true;
             StartCoroutine(CountdownCooldownFor("iceShield"));
@@ -332,16 +373,17 @@ public class Player : MonoBehaviour {
     private void IceTomb(int spellIndex) { StartCoroutine(IceTombCoro(spellIndex)); }
     private IEnumerator IceTombCoro(int spellIndex) { 
         if (!iceTombUsed)  {
+            soundManager.PlayClip("icesound");
             PutSpellOnCooldown(spellIndex + 1);
             iceTombUsed = true;
             StartCoroutine(CountdownCooldownFor("iceTomb"));
             Bullet b = FireProjectile(
                 0, iceTombDamage, 0, 0, 
-                new Vector2(9f, 9f),
+                new Vector2(0, 0),
                 Bullet.Behavior.Linger, 
-                Colors.iceBlue, 
+                Colors.partial, 
                 transform.position,
-                roundBullet
+                icetombGO
             );
             b.rootDuration = iceTombRootDuration;
             yield return new WaitForSeconds(iceTombRootDuration);
@@ -349,17 +391,18 @@ public class Player : MonoBehaviour {
         }
     }
     
-    private void Shotgun(int count, int spd, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior,  Color color, Vector3 pos) {
+    private void Shotgun(int count, int spd, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior,  Color color, Vector3 pos, GameObject go) {
         for (int i = 0; i < count; i++) {
             FireProjectile(
                 spd, 
                 projectileDamage, 
                 acceleration, 
                 theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, 
-                scales["medium"], 
+                scale, 
                 behavior, 
                 color, 
-                pos
+                pos,
+                go
             );
         }
     }
@@ -417,7 +460,7 @@ public class Player : MonoBehaviour {
     }
 
     private void OnMouseDown() {
-        AttemptAttack();
+        if (!lockActions) { AttemptAttack(); }
     }
 
     private void AttemptAttack() {
@@ -426,6 +469,7 @@ public class Player : MonoBehaviour {
             shootingCoro = StartCoroutine(RefreshAttack());
         }
         else { return; }
+        soundManager.PlayClip("shoot");
         switch (curStaff) {
             case 0:
                 FireProjectile(
@@ -433,10 +477,11 @@ public class Player : MonoBehaviour {
                     attackDmgs[0], 
                     0f, 
                     GetAngleToCursor(transform.position), 
-                    scales["medium"], 
+                    new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
-                    Colors.green, 
-                    transform.position
+                    Color.white,
+                    transform.position,
+                    staff0shoot
                 );
                 break;
             case 1:
@@ -445,24 +490,13 @@ public class Player : MonoBehaviour {
                     attackDmgs[1], 
                     0f, 
                     GetAngleToCursor(transform.position), 
-                    scales["medium"], 
+                    new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
-                    Colors.blue, 
-                    transform.position
+                    Color.white,
+                    transform.position,
+                    staff1shoot
                 );
                 break;
-            // case 2:
-            //     FireProjectile(
-            //         projectileSpeed, 
-            //         attackDmgs[2], 
-            //         0f, 
-            //         GetAngleToCursor(transform.position), 
-            //         scales["medium"], 
-            //         Bullet.Behavior.Linger, 
-            //         Colors.red, 
-            //         transform.position
-            //     );
-            //     break;
             case 2:
                 float offsetAmount = 1.5f;
                 float theta = GetAngleToCursor(transform.position);
@@ -474,20 +508,22 @@ public class Player : MonoBehaviour {
                     attackDmgs[3], 
                     0f, 
                     GetAngleToCursor((Vector2)transform.position + perpendicular), 
-                    scales["medium"], 
+                    new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
-                    Colors.white, 
-                    (Vector2)transform.position + perpendicular
+                    Color.white, 
+                    (Vector2)transform.position + perpendicular,
+                    staff2shoot
                 );
                 FireProjectile(
                     projectileSpeed, 
                     attackDmgs[3], 
                     0f, 
                     GetAngleToCursor((Vector2)transform.position - perpendicular), 
-                    scales["medium"], 
+                    new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
-                    Colors.white, 
-                    (Vector2)transform.position - perpendicular
+                    Color.white, 
+                    (Vector2)transform.position - perpendicular,
+                    staff2shoot
                 );
                 break;
             default:
@@ -502,7 +538,7 @@ public class Player : MonoBehaviour {
     }
 
     private Bullet FireProjectile(float spd, int dmg, float acc, float theta, Vector2 scale, Bullet.Behavior behavior, Color color, Vector3 pos, GameObject bulletType = null) {
-        GameObject fired = Instantiate(bulletType == null ? bullet : roundBullet, pos, Quaternion.identity);
+        GameObject fired = Instantiate(bulletType == null ? bullet : bulletType, pos, Quaternion.identity);
         fired.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
         fired.GetComponent<Rigidbody2D>().velocity = new Vector2(
             Mathf.Cos(theta) * spd,
@@ -514,25 +550,37 @@ public class Player : MonoBehaviour {
         b.firedAngle = theta;
         b.behavior = behavior;
         fired.GetComponent<SpriteRenderer>().color = color;
-        fired.transform.localScale = scale;
+        if (scale.x != 0) {fired.transform.localScale = scale;}
         return b;
     }
 
     private IEnumerator RefreshAttack() {
-        basicAttackItemFrame.dropper.SetActive(true);
-        basicAttackItemFrame.cover.SetActive(true);
-        for (int i = 0; i < attackSpeeds[curStaff]*9; i++) {
-            basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(attackSpeeds[curStaff] * 10));
+        if (basicAttackItemFrame != null && basicAttackItemFrame.dropper != null) {
+            basicAttackItemFrame.dropper.SetActive(true);
+            basicAttackItemFrame.cover.SetActive(true);
+            for (int i = 0; i < attackSpeeds[curStaff]*9; i++) {
+                basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(attackSpeeds[curStaff] * 10));
+                yield return new WaitForSeconds(0.1f);
+            }
+            basicAttackItemFrame.dropper.SetActive(false);
+            basicAttackItemFrame.cover.SetActive(false);
             yield return new WaitForSeconds(0.1f);
+            canAttack = true;
         }
-        basicAttackItemFrame.dropper.SetActive(false);
-        basicAttackItemFrame.cover.SetActive(false);
-        yield return new WaitForSeconds(0.1f);
-        canAttack = true;
     }
 
     public void ChangeHealthBy(int amount) {
-        health -= amount;
-        healthText.text = $"{health} HP";
+        if (!invincible) {
+            soundManager.PlayClip("phurt");
+            health -= amount;
+            if (health <= 0) { 
+                PlayerPrefs.SetInt("deaths", PlayerPrefs.GetInt("deaths") + 1);
+                soundManager.PlayClip("pdeath"); 
+                lockActions = true;
+                invincible = true;
+                FindObjectOfType<WaveManager>().PlayerDies();
+            }
+            playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
+        }
     }
 }
