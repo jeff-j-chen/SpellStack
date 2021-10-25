@@ -3,46 +3,46 @@
   "Assemblies": [
     {
       "FullName": "Unity.Burst, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-10-20T01:55:28.3638666Z"
+      "LastWriteTime": "2021-10-25T16:04:01.6559265Z"
     },
     {
       "FullName": "netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51",
-      "LastWriteTime": "2021-06-24T19:16:34.1333656Z"
+      "LastWriteTime": "2021-08-17T02:21:01.9599869Z"
     },
     {
       "FullName": "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
-      "LastWriteTime": "2021-06-24T19:16:33.4213881Z"
+      "LastWriteTime": "2021-08-17T02:21:00.279987Z"
     },
     {
       "FullName": "UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-06-24T19:16:45.4490072Z"
+      "LastWriteTime": "2021-08-17T02:21:24.5239861Z"
     },
     {
       "FullName": "Unity.2D.SpriteShape.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-10-20T01:55:28.5798593Z"
+      "LastWriteTime": "2021-10-25T16:04:05.9439264Z"
     },
     {
       "FullName": "mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
-      "LastWriteTime": "2021-06-24T19:16:33.4213881Z"
+      "LastWriteTime": "2021-08-17T02:21:00.279987Z"
     },
     {
       "FullName": "Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-10-20T01:55:28.4158648Z"
+      "LastWriteTime": "2021-10-25T16:04:02.4519265Z"
     },
     {
       "FullName": "UnityEngine.SpriteShapeModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-06-24T19:16:45.7569975Z"
+      "LastWriteTime": "2021-08-17T02:21:24.9799861Z"
     },
     {
       "FullName": "Unity.2D.Common.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "LastWriteTime": "2021-10-20T01:55:28.6998553Z"
+      "LastWriteTime": "2021-10-25T16:04:05.9439264Z"
     }
   ],
   "Functions": [
     {
       "FullName": "System.Int32 Unity.Burst.Intrinsics.X86::DoGetCSRTrampoline()",
       "ModuleOptionsHash": 15221144590354301703,
-      "ModuleHash": "177b5c5f9870dc3f8443f2e9a359ff5a",
+      "ModuleHash": "a4618be28995c6c8c28c1ae02fd3c23e",
       "LinkName": "CDCA4A5193BE5947",
       "AssemblyDependencyIndices": [
         0,
@@ -53,7 +53,7 @@
     {
       "FullName": "System.Void Unity.Burst.Intrinsics.X86::DoSetCSRTrampoline(System.Int32)",
       "ModuleOptionsHash": 15221144590354301703,
-      "ModuleHash": "0a858f1cfca96e6d4c40041e24ece6fd",
+      "ModuleHash": "2ecdb9ec1888dc379641d650b6d38d62",
       "LinkName": "801E9A000BB37B05",
       "AssemblyDependencyIndices": [
         0,
@@ -64,7 +64,7 @@
     {
       "FullName": "System.Void Unity.Jobs.IJobExtensions/JobStruct`1<UnityEngine.U2D.SpriteShapeGenerator>::Execute(T&,System.IntPtr,System.IntPtr,Unity.Jobs.LowLevel.Unsafe.JobRanges&,System.Int32)",
       "ModuleOptionsHash": 15221144590354301703,
-      "ModuleHash": "4b73edc3e1a092e0bd6f93426ef8261a",
+      "ModuleHash": "3dd7c3180a39c069ef64eaeb91806c84",
       "LinkName": "104599FDEEB36FAE",
       "AssemblyDependencyIndices": [
         3,

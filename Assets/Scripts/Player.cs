@@ -86,33 +86,43 @@ public class Player : MonoBehaviour {
     private float vertical;
     private const float MoveLimiter = 0.7f;
     private bool lockActions = false;
-    private bool invincible;
     
     private delegate void Spell(int spellIndex);
     [SerializeField] private List<Spell> spellList;
     [SerializeField] private List<float> cooldownList;
+    [SerializeField] private SpriteRenderer redVignette;
+    [SerializeField] private float maxOpacity = 0.25f;
     private ItemFrame basicAttackItemFrame;
     private Coroutine shootingCoro;
     private SoundManager soundManager;
+    private WaveManager waveManager;
+    private CameraShake cameraShake;
 
     private void Start () {
         lockActions = false;
-        invincible = false;
         body = GetComponent<Rigidbody2D>();
         soundManager = FindObjectOfType<SoundManager>();
+        waveManager = FindObjectOfType<WaveManager>();
+        cameraShake = FindObjectOfType<CameraShake>();
         spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, RockRise, ConvergingSpell, GenericShotgun, IceTomb };
         cooldownList = new List<float> { 0, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, rockRiseCooldown, cSpellCooldown, gShotgunCooldown, iceTombCooldown };
         StartCoroutine(EnableFirstSpells());
         basicAttackItemFrame = spellIndicatorList[0].GetComponent<ItemFrame>();
         StartCoroutine(HealthRegen());
     }
+
+    private void ScaleHPBar() {
+        playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
+        Color temp = redVignette.color;
+        temp.a = maxOpacity * ((float)health/startHealth);
+        redVignette.color = temp;
+    }
     
     private IEnumerator HealthRegen() {
-        while (!invincible) {
-            yield return new WaitForSeconds(1f);
-            
+        while (true) {
             if (health <= startHealth - healAmount) { health += healAmount; }
-            playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
+            ScaleHPBar();
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -181,6 +191,7 @@ public class Player : MonoBehaviour {
             l.GetComponent<Bullet>().damage = lightningDamage;
             l.GetComponent<Bullet>().behavior = Bullet.Behavior.Linger;
             soundManager.PlayClip("lightning");
+            cameraShake.Shake();
             yield return new WaitForSeconds(0.3f);
             Destroy(c);
             Destroy(l);
@@ -293,6 +304,7 @@ public class Player : MonoBehaviour {
             rockRiseUsed = true;
             StartCoroutine(CountdownCooldownFor("rockRise"));
             GameObject b = Instantiate(rockRiseCenter, drop, Quaternion.identity);
+            cameraShake.Shake();
             rockRiseCenter.transform.localScale = new Vector2(0f, 0f);
             for (int i = 0; i < (rockRiseDelay*5); i++) {
                 b.transform.localScale += new Vector3(0.8f, 0.8f, 0f);
@@ -570,17 +582,15 @@ public class Player : MonoBehaviour {
     }
 
     public void ChangeHealthBy(int amount) {
-        if (!invincible) {
-            soundManager.PlayClip("phurt");
-            health -= amount;
-            if (health <= 0) { 
-                PlayerPrefs.SetInt("deaths", PlayerPrefs.GetInt("deaths") + 1);
-                soundManager.PlayClip("pdeath"); 
-                lockActions = true;
-                invincible = true;
-                FindObjectOfType<WaveManager>().PlayerDies();
-            }
-            playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
+        soundManager.PlayClip("phurt");
+        health -= amount;
+        if (health <= 0) { 
+            PlayerPrefs.SetInt("deaths", PlayerPrefs.GetInt("deaths") + 1);
+            soundManager.PlayClip("pdeath"); 
+            lockActions = true;
+            waveManager.PlayerDies();
+            Destroy(gameObject);
         }
+        ScaleHPBar();
     }
 }

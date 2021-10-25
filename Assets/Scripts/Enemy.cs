@@ -14,13 +14,15 @@ public class Enemy : MonoBehaviour {
     [SerializeField] private int lightningCount = 100;
     private enum MovementType { Standing, RunningAtPlayer, RunningAwayFromPlayer, MaintainDistance };
     [SerializeField] private float distanceToMaintain = 50f;
-    private Dictionary<string, Vector2> scales = new() {
-        { "small", new Vector2(0.5f, 0.5f) },
-        { "medium", new Vector2(1f, 1f) },
-        { "large", new Vector2(1.7f, 1.7f) }
-    };
     private Dictionary<EnemyType, int> healthDict;
     [SerializeField] private MovementType curMovementType = MovementType.Standing;
+    [SerializeField] private GameObject regularBullet;
+    [SerializeField] private GameObject sniperBullet;
+    [SerializeField] private GameObject machinegunBullet;
+    [SerializeField] private GameObject shotgunBullet;
+    [SerializeField] private GameObject fatShotBullet;
+    [SerializeField] private GameObject wavyBullet;
+
     private Player player;
     private delegate IEnumerator AttackPattern();
     private Coroutine currentAttackPattern;
@@ -31,6 +33,7 @@ public class Enemy : MonoBehaviour {
     private WaveManager waveManager;
     public bool uselessMinion = false;
     private SoundManager soundManager;
+    private CameraShake cameraShake;
     
     private void Start() {
         player = FindObjectOfType<Player>();
@@ -38,6 +41,7 @@ public class Enemy : MonoBehaviour {
         sr = GetComponent<SpriteRenderer>();
         waveManager = FindObjectOfType<WaveManager>();
         soundManager = FindObjectOfType<SoundManager>();
+        cameraShake = FindObjectOfType<CameraShake>();
         curPhase = 0;
         healthDict = new Dictionary<EnemyType, int>() {
             { EnemyType.Regular, 50 },
@@ -181,8 +185,11 @@ public class Enemy : MonoBehaviour {
         freezeMovement = false;
     }
 
-    private void FireProjectile(int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, Bullet.Behavior behavior, Color color, bool isWavy=false) {
-        GameObject fired = Instantiate(bullet, transform.position, Quaternion.identity);
+    private void FireProjectile(int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, Bullet.Behavior behavior, Color color, bool isWavy=false, GameObject projectilePrefab=null) {
+        if (projectilePrefab == null) {
+            projectilePrefab = bullet;
+        } 
+        GameObject fired = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
         fired.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
         fired.GetComponent<Rigidbody2D>().velocity = new(
             Mathf.Cos(theta) * projectileSpeed,
@@ -194,7 +201,9 @@ public class Enemy : MonoBehaviour {
         b.firedAngle = theta;
         b.behavior = behavior;
         fired.GetComponent<SpriteRenderer>().color = color;
-        fired.transform.localScale = scale;
+        if (scale.x != 0) {
+            fired.transform.localScale = scale;
+        }
         if (isWavy) {
             StartCoroutine(WaveBullet(fired));
         }
@@ -241,7 +250,7 @@ public class Enemy : MonoBehaviour {
         while (true) {
             yield return new WaitForSeconds(0.25f);
             theta += 13f * Mathf.Deg2Rad;
-            Shotgun(6, 8, 5, 0f, theta, scales["medium"], 60, Bullet.Behavior.Break, Colors.magenta);
+            Shotgun(6, 8, 5, 0f, theta, new Vector2(0, 0), 60, Bullet.Behavior.Break, Colors.magenta);
         }
     }
     
@@ -251,7 +260,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.6f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:regularBullet);
         }
     }
     
@@ -262,7 +271,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.6f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:regularBullet);
         }
     }
     
@@ -272,7 +281,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.6f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.blue, true);
+            FireProjectile(10, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.blue, true, projectilePrefab:wavyBullet);
         }
     }
     
@@ -282,7 +291,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(2.5f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 30, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple);
+            FireProjectile(10, 30, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple, projectilePrefab:fatShotBullet);
         }
     }
     
@@ -292,7 +301,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.6f);
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 10, 1.5f, theta, scales["small"], Bullet.Behavior.Break, Colors.babyBlue);
+            FireProjectile(10, 10, 1.5f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.babyBlue, projectilePrefab:sniperBullet);
         }
     }
     
@@ -302,11 +311,11 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.5f);
             Vector2 lookDirection = player.transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 5, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.red);
+            FireProjectile(15, 5, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:fatShotBullet);
             yield return new WaitForSeconds(0.3f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 10, 1f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+            FireProjectile(10, 10, 1f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.yellow, projectilePrefab:regularBullet);
         }
     }
 
@@ -320,26 +329,12 @@ public class Enemy : MonoBehaviour {
                 yield return new WaitForSeconds(0.5f);
                 lookDirection = player.transform.position - transform.position;
                 theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-                FireProjectile(15, 5, 7f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+                FireProjectile(15, 5, 7f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.yellow, projectilePrefab:regularBullet);
             }
             yield return new WaitForSeconds(0.5f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 20, 5, 0f, theta, scales["medium"], 12, Bullet.Behavior.Break, Colors.green);
-        }
-    }
-    
-    private IEnumerator RunAtPlayer() {
-        curMovementType = MovementType.RunningAtPlayer;
-        yield return new WaitForSeconds(0.3f);
-        while (true) {
-            yield return new WaitForSeconds(0.6f);
-            Vector2 lookDirection = player.transform.position - transform.position;
-            float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 12, 5, 4f, theta, scales["medium"], 15, Bullet.Behavior.Break, Colors.green);
-            lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
-            theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 5, 0f, theta, scales["large"], Bullet.Behavior.Break, Colors.yellow);
+            Shotgun(5, 20, 5, 0f, theta, new Vector2(0, 0), 12, Bullet.Behavior.Break, Colors.green, projectilePrefab:shotgunBullet);
         }
     }
 
@@ -348,7 +343,7 @@ public class Enemy : MonoBehaviour {
         while (true) {
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 8, 3, 0f, theta, scales["medium"], 20, Bullet.Behavior.Break, Colors.green);
+            Shotgun(5, 8, 3, 0f, theta, new Vector2(0, 0), 20, Bullet.Behavior.Break, Colors.green, projectilePrefab:shotgunBullet);
             yield return new WaitForSeconds(2.5f);
         }
     }
@@ -358,11 +353,11 @@ public class Enemy : MonoBehaviour {
         while (true) {
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.red);
+            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red);
             yield return new WaitForSeconds(0.5f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, scales["medium"], Bullet.Behavior.Break, Colors.yellow);
+            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.yellow, projectilePrefab:machinegunBullet);
             yield return new WaitForSeconds(0.5f);
         }
     }
@@ -370,21 +365,27 @@ public class Enemy : MonoBehaviour {
     private IEnumerator LightningSummon() {
         curMovementType = MovementType.MaintainDistance;
         while (true) {
+            soundManager.PlayClip("lightningbuildupSlowed");
             waveManager.SummonAtPos(player.transform.position);
             yield return new WaitForSeconds(2f);
+            cameraShake.Shake();
+            soundManager.PlayClip("lightning");
         }
     }
     
     private IEnumerator LightningChase() {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
+            soundManager.PlayClip("lightningbuildupSlowed");
             for (int i = 0; i < lightningCount; i++) {
                 waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green);
+            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green);
             yield return new WaitForSeconds(2f);
+            cameraShake.Shake();
+            soundManager.PlayClip("lightning");
         }
     }
     
@@ -396,19 +397,19 @@ public class Enemy : MonoBehaviour {
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 6, 5, 0f, theta, scales["medium"], 30, Bullet.Behavior.Break, Colors.green, true);
+            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, true);
             lookDirection = player.transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(5, 30, 1f, theta, scales["large"], Bullet.Behavior.Break, Colors.purple);
+            FireProjectile(5, 30, 1f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple);
             yield return new WaitForSeconds(2f);
         }
     }
     
 
 
-    private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color, bool isWavy=false) {
+    private void Shotgun(int count, int projectileSpeed, int projectileDamage, float acceleration, float theta, Vector2 scale, int spread, Bullet.Behavior behavior, Color color, bool isWavy=false, GameObject projectilePrefab=null) {
         for (int i = 0; i < count; i++) {
-            FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scale, behavior, color, isWavy);
+            FireProjectile(projectileSpeed, projectileDamage, acceleration, theta + ((-count/2 + i) * spread) * Mathf.Deg2Rad, scale, behavior, color, isWavy, projectilePrefab);
         }
     }
 

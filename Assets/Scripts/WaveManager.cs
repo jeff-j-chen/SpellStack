@@ -24,9 +24,14 @@ public class WaveManager : MonoBehaviour {
     [SerializeField] private GameObject behindBanner;
     [SerializeField] private List<Enemy> spawnedEnemies = new();
     [SerializeField] private GameObject lightningGO;
+    [SerializeField] private GameObject tutorialBanner;
+    [SerializeField] private TextMeshProUGUI tutorialText;
+    [SerializeField] private bool showTutorial;
     private Player player;
     private SoundManager soundManager;
+
     private void Start() {
+        showTutorial = PlayerPrefs.GetString("tutorial", "true") == "true" ? true : false;
         player = FindObjectOfType<Player>();
         soundManager = FindObjectOfType<SoundManager>();
         Color temp = behindBanner.GetComponent<SpriteRenderer>().color;
@@ -43,6 +48,13 @@ public class WaveManager : MonoBehaviour {
         StartCoroutine(NextWave());
     }
     
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            showTutorial = false;
+            PlayerPrefs.SetString("tutorial", "false");
+        }
+    }
+
     private IEnumerator SlideCardDown() {
         // card: 25.73313 -> 0
         // text: 456 -> 0
@@ -74,6 +86,23 @@ public class WaveManager : MonoBehaviour {
             yield return new WaitForSeconds(0.025f);
         }
     }
+
+    private void TutorialText(string text, float waitTime) { StartCoroutine(TutorialTextCoro(text, waitTime)); }
+
+    private IEnumerator TutorialTextCoro(string text, float waitTime) {
+        tutorialText.text = text;
+        for (int i = 1; i < 41; i++) {
+            cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
+            waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
+            yield return new WaitForSeconds(0.025f);
+        }
+        yield return new WaitForSeconds(waitTime);
+        for (int i = 1; i < 41; i++) {
+            cardTilemap.transform.localPosition = new Vector2(0, i * 25.733f/40);
+            waveText.transform.localPosition = new Vector2(0, 42.67f + i * (456.0f-42.67f)/40);
+            yield return new WaitForSeconds(0.025f);
+        }
+    }
     
     
     private IEnumerator NextWave() {
@@ -81,35 +110,43 @@ public class WaveManager : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++) {
             Destroy(transform.GetChild(i).gameObject);
         }
-        StartCoroutine(SlideCardDown());
+        if (curWave != 12) {
+            StartCoroutine(SlideCardDown());
+        }
         bossBar.SetActive(false);
         bossBarBg.SetActive(false);
-        if (curWave is 6 or 9 or 11) { yield return new WaitForSeconds(4.5f); }
-        else { yield return new WaitForSeconds(3f); }
         switch (curWave) {
             // regular: yellow, simpletracker: green, shotgun: babyblue, machinegun: orange, fatshot: purple
             case 1:
-                print("basic enemy. pretty simple to dispatch with your basic attack");
-                liveEnemies = 1;
                 bossBar.SetActive(false);
                 bossBarBg.SetActive(false);
-                SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                yield return new WaitForSeconds(1.8f);
+                if (showTutorial) {
+                    TutorialText("Use <WASD> or <Arrow Keys> to move, and <Left Click> to shoot.\nPress <Space> to hide these messages in the future.", 5f);
+                    yield return new WaitForSeconds(5f);
+                }
+                TutorialText("Here is a basic enemy - very simple to dispatch with a basic attack.", 5f);
+                liveEnemies = 1;
+                SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn:true, reduceHealth:true);
                 break;
             case 2:
                 bossBar.SetActive(false);
                 bossBarBg.SetActive(false);
-                print("with more enemies, spells become more important. try using the lightning spell you just unlocked!");
+                if (showTutorial) {
+                    TutorialText("With more enemies, spells become important.\nPress <1> to smite your enemies from above!", 5f);
+                    yield return new WaitForSeconds(5f);
+                }
                 liveEnemies = 3;
                 for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(1.8f);
+                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn: true);
                 }
                 break;
             case 3:
                 bossBar.SetActive(false);
                 bossBarBg.SetActive(false);
-                print("you may have noticed that the lightning would be more useful if the enemy was dragged towards it... try comboing it with the whirlpool spell!");
+                if (showTutorial) {
+                    TutorialText("More spells means you can combo them together for even more power.\nUse <1> and <2> on the same spot to pull them enemies in to the center of your strike!", 5f);
+                    yield return new WaitForSeconds(5f);
+                }
                 liveEnemies = 6;
                 for (int i = 0; i < 4; i++) {
                     SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
@@ -123,6 +160,10 @@ public class WaveManager : MonoBehaviour {
             case 4:
                 bossBar.SetActive(false);
                 bossBarBg.SetActive(false);
+                if (showTutorial) {
+                    TutorialText("Every wave you complete unlocks another spell, granting you more power.", 3f);
+                    yield return new WaitForSeconds(3f);
+                }
                 liveEnemies = 9;
                 for (int i = 0; i < 3; i++) {
                     SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
@@ -134,6 +175,10 @@ public class WaveManager : MonoBehaviour {
                 }
                 break;
             case 5: 
+                if (showTutorial) {
+                    TutorialText("First bossfight incoming - good luck!", 3f);
+                    yield return new WaitForSeconds(3f);
+                }
                 bossBar.SetActive(true);
                 bossBarBg.SetActive(true);
                 print("first bossfight, good luck!");
@@ -149,6 +194,10 @@ public class WaveManager : MonoBehaviour {
             case 6:
                 bossBar.SetActive(false);
                 bossBarBg.SetActive(false);
+                if (showTutorial) {
+                    TutorialText("After defeating a boss, your staff is upgraded.", 3f);
+                    yield return new WaitForSeconds(3f);
+                }
                 liveEnemies = 13;
                 for (int i = 0; i < 5; i++) {
                     SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
@@ -224,10 +273,13 @@ public class WaveManager : MonoBehaviour {
                 liveEnemies = 1;
                 SummonEnemy(Enemy.EnemyType.BossThree, Colors.red, forceCenterSpawn:true);
                 break;
-            case 11:                 
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                liveEnemies = 70;
+            case 11:
+                bossBar.SetActive(true);
+                bossBarBg.SetActive(true);
+                TutorialText("Good luck :)", 3f);
+                yield return new WaitForSeconds(3f);          
+                liveEnemies = 71;
+                SummonEnemy(Enemy.EnemyType.BossThree, Colors.red, forceCenterSpawn:true);
                 for (int i = 0; i < 5; i++) {
                     SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
                     SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
@@ -251,6 +303,16 @@ public class WaveManager : MonoBehaviour {
                     yield return new WaitForSeconds(10.8f);
                 }
                 break;
+            case 12: 
+                waveText.text = "Game complete! Attempts: " + PlayerPrefs.GetInt("deaths");
+                StartCoroutine(HideGame());
+                for (int i = 1; i < 41; i++) {
+                    cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
+                    waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
+                    yield return new WaitForSeconds(0.025f);
+                }
+                soundManager.PlayClip("unlocked");
+                break;
             default: Debug.LogError($"this wave ({curWave}) was not accounted for!"); break;
         }
     }
@@ -259,7 +321,7 @@ public class WaveManager : MonoBehaviour {
         bossBar.transform.localScale = new Vector2(28f * percentage, 1);
     }
     
-    private void SummonEnemy(Enemy.EnemyType enemyType, Color color, bool isUseless=false, bool forceCenterSpawn=false) {
+    private void SummonEnemy(Enemy.EnemyType enemyType, Color color, bool isUseless=false, bool forceCenterSpawn=false, bool reduceHealth=true) {
         Vector3 pt = forceCenterSpawn 
             ? spawnPoints[PointNames.Center] 
             : spawnPoints[spawnPointList[Random.Range(0, spawnPoints.Count)]] + new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f));
@@ -269,6 +331,7 @@ public class WaveManager : MonoBehaviour {
         e.freezeMovement = true;
         e.uselessMinion = isUseless;
         e.transform.parent = transform;
+        if (reduceHealth) { e.health = e.health / 2; }
         StartCoroutine(FadeIn(g.GetComponent<SpriteRenderer>(), e));
         SpriteRenderer sr = e.GetComponent<SpriteRenderer>();
         sr.color = color;
@@ -326,13 +389,16 @@ public class WaveManager : MonoBehaviour {
         Destroy(b);
     }
     
-    public void PlayerDies() { StartCoroutine(PlayerDiesCoro()); }
-    private IEnumerator PlayerDiesCoro() {
-        SpriteRenderer sr = behindBanner.GetComponent<SpriteRenderer>();
+    public void PlayerDies() {
         foreach (Enemy e in spawnedEnemies) {
             if (e != null) { Destroy(e.gameObject); }
         }
+        StartCoroutine(HideGame());
         StartCoroutine(PresentRetry());
+    }
+
+    private IEnumerator HideGame() {
+        SpriteRenderer sr = behindBanner.GetComponent<SpriteRenderer>();
         Color temp = sr.color;
         temp.a = 0;
         sr.color = temp;
