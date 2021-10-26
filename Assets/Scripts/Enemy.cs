@@ -168,11 +168,30 @@ public class Enemy : MonoBehaviour {
             }
             else {
                 soundManager.PlayClip("ehurt");
+                StartCoroutine(GivePlayerFeedback());
             }
             if (enemyType is EnemyType.BossOne or EnemyType.BossTwo or EnemyType.BossThree) {
                 waveManager.ScaleBossHP(health / (float)healthDict[enemyType]);
             }
         }
+    }
+    
+    private IEnumerator GivePlayerFeedback() {
+        Color temp = sr.color;
+        temp.a = 1;
+        sr.color = temp;
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            sr.color = temp;
+            yield return new WaitForSeconds(0.006f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            sr.color = temp;
+            yield return new WaitForSeconds(0.006f);
+        }
+        temp.a = 1;
+        sr.color = temp;
     }
     
     public void RootForDuration(float duration) {
@@ -200,7 +219,7 @@ public class Enemy : MonoBehaviour {
         b.acceleration = acceleration;
         b.firedAngle = theta;
         b.behavior = behavior;
-        fired.GetComponent<SpriteRenderer>().color = color;
+        // fired.GetComponent<SpriteRenderer>().color = color;
         if (scale.x != 0) {
             fired.transform.localScale = scale;
         }
@@ -250,7 +269,7 @@ public class Enemy : MonoBehaviour {
         while (true) {
             yield return new WaitForSeconds(0.25f);
             theta += 13f * Mathf.Deg2Rad;
-            Shotgun(6, 8, 5, 0f, theta, new Vector2(0, 0), 60, Bullet.Behavior.Break, Colors.magenta);
+            Shotgun(6, 8, 5, 0f, theta, new Vector2(0, 0), 60, Bullet.Behavior.Break, Colors.magenta, projectilePrefab:machinegunBullet);
         }
     }
     
@@ -291,7 +310,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(2.5f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 30, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple, projectilePrefab:fatShotBullet);
+            FireProjectile(10, 40, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple, projectilePrefab:fatShotBullet);
         }
     }
     
@@ -311,7 +330,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.5f);
             Vector2 lookDirection = player.transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 5, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:fatShotBullet);
+            FireProjectile(15, 50, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:fatShotBullet);
             yield return new WaitForSeconds(0.3f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
@@ -353,7 +372,7 @@ public class Enemy : MonoBehaviour {
         while (true) {
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red);
+            FireProjectile(15, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.red, projectilePrefab:machinegunBullet);
             yield return new WaitForSeconds(0.5f);
             lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
@@ -382,7 +401,7 @@ public class Enemy : MonoBehaviour {
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green);
+            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, projectilePrefab:shotgunBullet);
             yield return new WaitForSeconds(2f);
             cameraShake.Shake();
             soundManager.PlayClip("lightning");
@@ -397,10 +416,10 @@ public class Enemy : MonoBehaviour {
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, true);
+            Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, true, projectilePrefab:shotgunBullet);
             lookDirection = player.transform.position;
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(5, 30, 1f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple);
+            FireProjectile(5, 30, 1f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple, projectilePrefab:fatShotBullet);
             yield return new WaitForSeconds(2f);
         }
     }

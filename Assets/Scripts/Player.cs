@@ -86,12 +86,14 @@ public class Player : MonoBehaviour {
     private float vertical;
     private const float MoveLimiter = 0.7f;
     private bool lockActions = false;
+    private SpriteRenderer sr;
+    private bool isInvincible = false;
     
     private delegate void Spell(int spellIndex);
     [SerializeField] private List<Spell> spellList;
     [SerializeField] private List<float> cooldownList;
     [SerializeField] private SpriteRenderer redVignette;
-    [SerializeField] private float maxOpacity = 0.25f;
+    [SerializeField] private float maxOpacity = 1f;
     private ItemFrame basicAttackItemFrame;
     private Coroutine shootingCoro;
     private SoundManager soundManager;
@@ -100,10 +102,12 @@ public class Player : MonoBehaviour {
 
     private void Start () {
         lockActions = false;
+        isInvincible = false;
         body = GetComponent<Rigidbody2D>();
         soundManager = FindObjectOfType<SoundManager>();
         waveManager = FindObjectOfType<WaveManager>();
         cameraShake = FindObjectOfType<CameraShake>();
+        sr = GetComponent<SpriteRenderer>();
         spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, RockRise, ConvergingSpell, GenericShotgun, IceTomb };
         cooldownList = new List<float> { 0, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, rockRiseCooldown, cSpellCooldown, gShotgunCooldown, iceTombCooldown };
         StartCoroutine(EnableFirstSpells());
@@ -114,13 +118,13 @@ public class Player : MonoBehaviour {
     private void ScaleHPBar() {
         playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
         Color temp = redVignette.color;
-        temp.a = maxOpacity * ((float)health/startHealth);
+        temp.a = maxOpacity * (1-Mathf.Pow((float)health/startHealth,2));
         redVignette.color = temp;
     }
     
     private IEnumerator HealthRegen() {
         while (true) {
-            if (health <= startHealth - healAmount) { health += healAmount; }
+            if (health <= startHealth - healAmount && waveManager.transform.childCount > 3) { health += healAmount; }
             ScaleHPBar();
             yield return new WaitForSeconds(1f);
         }
@@ -149,8 +153,8 @@ public class Player : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
             if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
             // flamethrower, forcepush, ice volley, spin attack, wind slash, boomerang, bounding box
-            if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
-            if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
+            // if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
+            // if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
         }
     }
     
@@ -206,7 +210,7 @@ public class Player : MonoBehaviour {
             PutSpellOnCooldown(spellIndex + 1);
             fireballUsed = true;
             StartCoroutine(CountdownCooldownFor("fireball"));
-            FireProjectile(
+            Bullet b = FireProjectile(
                 fireballSpeed, 
                 fireballDamage, 
                 0f, 
@@ -217,6 +221,7 @@ public class Player : MonoBehaviour {
                 transform.position,
                 fireball
             );
+            b.isFireball = true;
         }
     }
     
@@ -582,15 +587,40 @@ public class Player : MonoBehaviour {
     }
 
     public void ChangeHealthBy(int amount) {
-        soundManager.PlayClip("phurt");
-        health -= amount;
-        if (health <= 0) { 
-            PlayerPrefs.SetInt("deaths", PlayerPrefs.GetInt("deaths") + 1);
-            soundManager.PlayClip("pdeath"); 
-            lockActions = true;
-            waveManager.PlayerDies();
-            Destroy(gameObject);
+        if (!isInvincible) {
+            soundManager.PlayClip("phurt");
+            health -= amount;
+            if (health <= 0) { 
+                PlayerPrefs.SetInt("deaths", PlayerPrefs.GetInt("deaths") + 1);
+                soundManager.PlayClip("pdeath"); 
+                lockActions = true;
+                waveManager.PlayerDies();
+                Destroy(gameObject);
+            }
+            else {
+                StartCoroutine(GivePlayerFeedback());
+            }
         }
         ScaleHPBar();
+    }
+    
+    private IEnumerator GivePlayerFeedback() {
+        Color temp = sr.color;
+        temp.a = 1;
+        sr.color = temp;
+        isInvincible = true;
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            sr.color = temp;
+            yield return new WaitForSeconds(0.006f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            sr.color = temp;
+            yield return new WaitForSeconds(0.006f);
+        }
+        isInvincible = false;
+        temp.a = 1;
+        sr.color = temp;
     }
 }

@@ -6,27 +6,32 @@ public class Music : MonoBehaviour {
     [SerializeField] private AudioClip[] musicPieces;
     [SerializeField] private string[] musicPieceNames;
     public AudioSource audioSource;
-    private Scripts scripts;
     
     private void Awake() {
         audioSource = GetComponent<AudioSource>();
+        musicPieceNames = new string[musicPieces.Length];
         for (int i = 0; i < musicPieces.Length; i++) {
             musicPieceNames[i] = musicPieces[i].name;
         }
-        scripts = FindObjectOfType<Scripts>();
-        audioSource.volume = 0.5f;
+        audioSource.volume = 0;
     }
     
     private void Start() {
-        FadeVolumeIn();
-        PlayMusic("Karl");
+        
+        StartCoroutine(PlayMusic("Karl"));
     }
-
-    public void PlayMusic(string pieceName) {
+    
+    public IEnumerator PlayMusic(string pieceName) {
         audioSource.clip = musicPieces[Array.IndexOf(musicPieceNames, pieceName)];
-        audioSource.Play();
+        while (true) {
+            FadeVolumeIn();
+            audioSource.Play();
+            yield return new WaitForSeconds(200f);
+            FadeVolumeOut();
+            yield return new WaitForSeconds(10f);
+        }
     }
-
+    
     public void FadeVolumeIn() {
         StartCoroutine(FadeVolumeInCoro()); 
     }
@@ -34,19 +39,19 @@ public class Music : MonoBehaviour {
     public void FadeVolumeOut() { 
         StartCoroutine(FadeVolumeOutCoro()); 
     }
-
+    
     private IEnumerator FadeVolumeInCoro() { 
         for (int i = 0; i < 5; i++) {
-            yield return scripts.delays[0.05f];
-            audioSource.volume += 0.1f;
+            yield return new WaitForSeconds(0.05f);
+            audioSource.volume += 0.01f;
         }
-        audioSource.volume = 0.5f;
+        audioSource.volume = 0.05f;
     }
-
+    
     private IEnumerator FadeVolumeOutCoro() { 
         for (int i = 0; i < 5; i++) {
-            yield return scripts.delays[0.05f];
-            audioSource.volume -= 0.1f;
+            yield return new WaitForSeconds(0.05f);
+            audioSource.volume -= 0.01f;
         }
         audioSource.volume = 0;
     }

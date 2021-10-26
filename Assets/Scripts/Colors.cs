@@ -21,4 +21,5 @@ public static class Colors {
     public static Color textClicked = new(0f, 0.831f, 0.38f); // 0D4614
     public static Color textHovered = new(0.165f, 0.427f, 0.012f); // 2A6D33
     public static Color elstrike = new(1f, 0.439f, 0.333f, 0.7098f); // FF7055
+    public static Color aqua = new(0.267f, 0.71f, 0.565f); // 44b590
 }

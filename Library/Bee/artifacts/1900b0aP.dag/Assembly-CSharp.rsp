@@ -100,6 +100,7 @@
 -define:ENABLE_TILEMAP
 -define:ENABLE_TIMELINE
 -define:ENABLE_LEGACY_INPUT_MANAGER
+-define:UNITY_POST_PROCESSING_STACK_V2
 -define:CSHARP_7_OR_LATER
 -define:CSHARP_7_3_OR_NEWER
 -r:"/home/jeff/Documents/Unity Projects/SpellStack/Library/PackageCache/com.unity.burst@1.6.0-pre.2/Unity.Burst.CodeGen/Unity.Burst.Cecil.Mdb.dll"
@@ -300,6 +301,7 @@
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.Burst.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.InternalAPIEngineBridge.001.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.Mathematics.ref.dll"
+-r:"Library/Bee/artifacts/1900b0aP.dag/Unity.Postprocessing.Runtime.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.TextMeshPro.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.Timeline.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.VisualScripting.Core.ref.dll"
@@ -307,12 +309,14 @@
 -r:"Library/Bee/artifacts/1900b0aP.dag/Unity.VisualScripting.State.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aP.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Bullet.cs"
+"Assets/Scripts/CameraShake.cs"
 "Assets/Scripts/Colors.cs"
 "Assets/Scripts/Destroyer.cs"
 "Assets/Scripts/Enemy.cs"
 "Assets/Scripts/Fader.cs"
 "Assets/Scripts/Initiate.cs"
 "Assets/Scripts/ItemFrame.cs"
+"Assets/Scripts/Music.cs"
 "Assets/Scripts/Player.cs"
 "Assets/Scripts/RetryButton.cs"
 "Assets/Scripts/SoundManager.cs"

@@ -132,11 +132,15 @@ MonoBehaviour:
   curPhase: 0
   freezeMovement: 0
   isInvincible: 0
-  lStrikeBorder: {fileID: 3725844497557720189, guid: 6312e7cf97bb724a88e0b1bb0fea6212, type: 3}
-  lStrikeCenter: {fileID: 3922585798179134493, guid: bb768e865e780b1b2972e41cafe50494, type: 3}
-  rand: 4
+  lightningCount: 100
   distanceToMaintain: 25
   curMovementType: 0
+  regularBullet: {fileID: 9159796077373619654, guid: 1edb27a7d5174407ca0ba36b3155fa80, type: 3}
+  sniperBullet: {fileID: 757242063611310099, guid: 315f231dab02e11cabc8ee5646fba95b, type: 3}
+  machinegunBullet: {fileID: 439033356352984623, guid: 4c730837ccbff1ddf8771a4929a1452b, type: 3}
+  shotgunBullet: {fileID: 8367976127230790560, guid: cbc2ade67af72275aa921a1ed7b6f15d, type: 3}
+  fatShotBullet: {fileID: 2771655113768493609, guid: 745fd1e15bbf84a6f8c9cef5831b954f, type: 3}
+  wavyBullet: {fileID: 5071111628014664035, guid: 3f28e614b09e47fb994c854f7ec29675, type: 3}
   uselessMinion: 0
 --- !u!50 &8950233173687937706
 Rigidbody2D:

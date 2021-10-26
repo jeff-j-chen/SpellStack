@@ -12,6 +12,7 @@ public class Bullet : MonoBehaviour {
     public enum Behavior { Break, Linger }
     public Behavior behavior = Behavior.Break;
     private SoundManager soundManager;
+    public bool isFireball;
 
     private void Start()  { 
         r = GetComponent<Rigidbody2D>();
@@ -39,6 +40,7 @@ public class Bullet : MonoBehaviour {
                 if (rootDuration != 0) {
                     g.GetComponent<Enemy>().RootForDuration(rootDuration);
                 }
+                FireballSFX(g);
                 break;
             case ("player"):
                 g.GetComponent<Player>().ChangeHealthBy(damage);
@@ -57,6 +59,12 @@ public class Bullet : MonoBehaviour {
                 case Behavior.Break: Destroy(gameObject); break;
                 default: throw new ArgumentOutOfRangeException();
             }
+        }
+    }
+    
+    private void FireballSFX(GameObject g) {
+        if (isFireball) {
+            FindObjectOfType<WaveManager>().PlayFire();
         }
     }
 }

@@ -10,25 +10,25 @@ public class RetryButton : MonoBehaviour {
     }
     
     private void OnMouseEnter() {
-        if (bannerText.text == "retry?") {
+        if (bannerText.text == ">retry< (esc to quit)") {
             bannerText.color = Colors.textHovered;
         }
     }
     
     private void OnMouseExit() {
-        if (bannerText.text == "retry?") {
+        if (bannerText.text == ">retry< (esc to quit)") {
             bannerText.color = Colors.textMain;
         }
     }
     
     private void OnMouseDown() {
-        if (bannerText.text == "retry?") {
+        if (bannerText.text == ">retry< (esc to quit)") {
             bannerText.color = Colors.textClicked;
         }
     }
     
     private void OnMouseUp() {
-        if (bannerText.text == "retry?") {
+        if (bannerText.text == ">retry< (esc to quit)") {
             bannerText.color = Colors.textMain;
             FindObjectOfType<WaveManager>().AttemptRestart();
         }
