@@ -1299,4 +1299,4 @@ ScriptsOnlyBuild:
   platform: 20
   scenePathNames:
   - Assets/Scenes/Game.unity
-  playerPath: /home/jeff/Documents/Unity Projects/SpellStack/webfixed
+  playerPath: /home/jeff/Documents/Unity Projects/SpellStack/web

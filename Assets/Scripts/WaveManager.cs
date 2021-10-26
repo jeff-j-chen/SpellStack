@@ -54,9 +54,9 @@ public class WaveManager : MonoBehaviour {
             showTutorial = false;
             PlayerPrefs.SetString("tutorial", "false");
         }
-        if (Input.GetKeyDown(KeyCode.Q)) {
-            print("quit!");
-            Application.Quit();
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            
+            if (FindObjectOfType<Player>() == null) { print("quit!");Application.Quit();}
         }
         if (Input.GetKeyDown(KeyCode.N)) {
             showTutorial = true;

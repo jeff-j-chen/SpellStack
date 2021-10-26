@@ -18026,6 +18026,8 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaveManager_Update_m3BF84AF10F62C8D277C6
 	static bool s_Il2CppMethodInitialized;
 	if (!s_Il2CppMethodInitialized)
 	{
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Object_FindObjectOfType_TisPlayer_tF98BD09D3495D2FF1922E5D34866AEAC6AE2DF74_m1AF191672ED0526BA05D933A53A2223E5B9EA9B2_RuntimeMethod_var);
+		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral366F2E7FE04DA2BE656D6B3DCCDF3650ED0FDF0C);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteral77D38C0623F92B292B925F6E72CF5CF99A20D4EB);
 		il2cpp_codegen_initialize_runtime_metadata((uintptr_t*)&_stringLiteralAB27F5B30BFE848051EFF7908053D018688899C7);
@@ -18050,29 +18052,41 @@ IL2CPP_EXTERN_C IL2CPP_METHOD_ATTR void WaveManager_Update_m3BF84AF10F62C8D277C6
 
 IL_001f:
 	{
-		// if (Input.GetKeyDown(KeyCode.Q)) {
+		// if (Input.GetKeyDown(KeyCode.Escape)) {
 		bool L_1;
-		L_1 = Input_GetKeyDown_m0D59B7EBC3A782C9FBBF107FBCD4B72B38D993B3(((int32_t)113), NULL);
+		L_1 = Input_GetKeyDown_m0D59B7EBC3A782C9FBBF107FBCD4B72B38D993B3(((int32_t)27), NULL);
 		if (!L_1)
 		{
-			goto IL_0037;
+			goto IL_0044;
 		}
 	}
 	{
-		// print("quit!");
+		// if (FindObjectOfType<Player>() == null) { print("quit!");Application.Quit();}
+		il2cpp_codegen_runtime_class_init_inline(Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C_il2cpp_TypeInfo_var);
+		Player_tF98BD09D3495D2FF1922E5D34866AEAC6AE2DF74* L_2;
+		L_2 = Object_FindObjectOfType_TisPlayer_tF98BD09D3495D2FF1922E5D34866AEAC6AE2DF74_m1AF191672ED0526BA05D933A53A2223E5B9EA9B2(Object_FindObjectOfType_TisPlayer_tF98BD09D3495D2FF1922E5D34866AEAC6AE2DF74_m1AF191672ED0526BA05D933A53A2223E5B9EA9B2_RuntimeMethod_var);
+		bool L_3;
+		L_3 = Object_op_Equality_mD3DB0D72CE0250C84033DC2A90AEF9D59896E536(L_2, (Object_tC12DECB6760A7F2CBF65D9DCF18D044C2D97152C*)NULL, NULL);
+		if (!L_3)
+		{
+			goto IL_0044;
+		}
+	}
+	{
+		// if (FindObjectOfType<Player>() == null) { print("quit!");Application.Quit();}
 		MonoBehaviour_print_mED815C779E369787B3E9646A6DE96FBC2944BF0B(_stringLiteral366F2E7FE04DA2BE656D6B3DCCDF3650ED0FDF0C, NULL);
-		// Application.Quit();
+		// if (FindObjectOfType<Player>() == null) { print("quit!");Application.Quit();}
 		Application_Quit_m965C6D4CA85A24DD95B347D22837074F19C58134(NULL);
 	}
 
-IL_0037:
+IL_0044:
 	{
 		// if (Input.GetKeyDown(KeyCode.N)) {
-		bool L_2;
-		L_2 = Input_GetKeyDown_m0D59B7EBC3A782C9FBBF107FBCD4B72B38D993B3(((int32_t)110), NULL);
-		if (!L_2)
+		bool L_4;
+		L_4 = Input_GetKeyDown_m0D59B7EBC3A782C9FBBF107FBCD4B72B38D993B3(((int32_t)110), NULL);
+		if (!L_4)
 		{
-			goto IL_0056;
+			goto IL_0063;
 		}
 	}
 	{
@@ -18082,7 +18096,7 @@ IL_0037:
 		PlayerPrefs_SetString_mDB0D33B60716ECC669310D27F861F464ACE3A3FF(_stringLiteralAB27F5B30BFE848051EFF7908053D018688899C7, _stringLiteralB7C45DD316C68ABF3429C20058C2981C652192F2, NULL);
 	}
 
-IL_0056:
+IL_0063:
 	{
 		// }
 		return;
