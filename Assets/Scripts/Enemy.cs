@@ -45,15 +45,15 @@ public class Enemy : MonoBehaviour {
         curPhase = 0;
         healthDict = new Dictionary<EnemyType, int>() {
             { EnemyType.Regular, 50 },
-            { EnemyType.FleeingTracker, 45 },
-            { EnemyType.MachineGunner, 65 },
-            { EnemyType.Shotgun, 75 }, 
-            { EnemyType.LightningMage, 65 },
-            { EnemyType.FatShot, 75 },
-            { EnemyType.WavyShooter, 85 },
-            { EnemyType.BossOne, 600 },
-            { EnemyType.BossTwo, 1200 },
-            { EnemyType.BossThree, 1800 },
+            { EnemyType.FleeingTracker, 50 },
+            { EnemyType.MachineGunner, 70 },
+            { EnemyType.Shotgun, 80 }, 
+            { EnemyType.LightningMage, 90 },
+            { EnemyType.FatShot, 100 },
+            { EnemyType.WavyShooter, 110 },
+            { EnemyType.BossOne, 1000 },
+            { EnemyType.BossTwo, 2000 },
+            { EnemyType.BossThree, 3000 },
         };
         health = healthDict[enemyType];
         transform.localScale = enemyType switch {
@@ -93,15 +93,15 @@ public class Enemy : MonoBehaviour {
             }},
             { EnemyType.BossOne, new() {
                 { 1f, SingleNonTrackingWithSlowChase },
-                { 0.6f, TrackingShotgun },
-                { 0.3f, NonTrackingAndTracking }
+                { 0.7f, TrackingShotgun },
+                { 0.35f, NonTrackingAndTracking }
             }},
             { EnemyType.BossTwo, new() {
                 { 1f, SpiralDoom }
             }},
             { EnemyType.BossThree, new() {
                 { 1f, LightningChase },
-                { 0.3f, LightningChaseWithWaves }
+                { 0.5f, LightningChaseWithWaves }
             }},
         };
         foreach (float percentage in patterns[enemyType].Keys) {
@@ -214,6 +214,7 @@ public class Enemy : MonoBehaviour {
             Mathf.Cos(theta) * projectileSpeed,
             Mathf.Sin(theta) * projectileSpeed
         );
+        waveManager.bullets.Add(fired);
         Bullet b = fired.GetComponent<Bullet>();
         b.damage = projectileDamage;
         b.acceleration = acceleration;
@@ -300,7 +301,7 @@ public class Enemy : MonoBehaviour {
             yield return new WaitForSeconds(0.6f);
             Vector2 lookDirection = player.transform.position - transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
-            FireProjectile(10, 10, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.blue, true, projectilePrefab:wavyBullet);
+            FireProjectile(10, 20, 0f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.blue, true, projectilePrefab:wavyBullet);
         }
     }
     

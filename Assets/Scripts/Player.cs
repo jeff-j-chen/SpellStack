@@ -18,7 +18,8 @@ public class Player : MonoBehaviour {
     [SerializeField] private float projectileSpeed = 25f;
     [SerializeField] public int startHealth = 200;
     [SerializeField] public int health = 200;
-    [SerializeField] public int healAmount = 2;
+    [SerializeField] public int regenAmount = 3;
+    [SerializeField] public int bossRegenAmount = 50;
     [SerializeField] private GameObject playerHP;
     [SerializeField] private GameObject bullet;
     [SerializeField] private GameObject fireball;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour {
     [SerializeField] private GameObject staff0shoot;
     [SerializeField] private GameObject staff1shoot;
     [SerializeField] private GameObject staff2shoot;
+    [SerializeField] private GameObject staff3shoot;
     [SerializeField] private GameObject roundBullet;
     [SerializeField] private GameObject lStrikeBorder;
     [SerializeField] private GameObject lStrikeCenter;
@@ -45,7 +47,7 @@ public class Player : MonoBehaviour {
     [SerializeField] private float rockRiseCooldown = 1f;
     [SerializeField] private bool rockRiseUsed = false;
     [SerializeField] private int waterPullDamage = 25;
-    [SerializeField] private float waterPullDelay = 1.5f;
+    [SerializeField] private float waterPullDelay = 2f;
     [SerializeField] private float waterPullCooldown = 1f;
     [SerializeField] private bool waterPullUsed = false;
     [SerializeField] private int fireballDamage = 25;
@@ -76,6 +78,10 @@ public class Player : MonoBehaviour {
     [SerializeField] private float iceTombRootDuration = 1f;
     [SerializeField] private float iceTombCooldown = 1f;
     [SerializeField] private bool iceTombUsed = false;
+    [SerializeField] private float attackSpeedChange = 0.05f;
+    [SerializeField] private float attackSpeedCooldown = 3f;
+    [SerializeField] private float attackSpeedDuration = 3f;
+    [SerializeField] private bool attackSpeedUsed = false;
     private readonly Dictionary<string, Vector2> scales = new() {
         { "small", new Vector2(0.5f, 0.5f) },
         { "medium", new Vector2(1f, 1f) },
@@ -108,8 +114,8 @@ public class Player : MonoBehaviour {
         waveManager = FindObjectOfType<WaveManager>();
         cameraShake = FindObjectOfType<CameraShake>();
         sr = GetComponent<SpriteRenderer>();
-        spellList = new List<Spell> { LightningStrike, WaterPull, IceShield, PlantRoot, Fireball, RockRise, ConvergingSpell, GenericShotgun, IceTomb };
-        cooldownList = new List<float> { 0, lightningCooldown, waterPullCooldown, iceShieldCooldown, plantRootCooldown, fireballCooldown, rockRiseCooldown, cSpellCooldown, gShotgunCooldown, iceTombCooldown };
+        spellList = new List<Spell> { Fireball, WaterPull, IceShield, LightningStrike, GenericShotgun, PlantRoot, ConvergingSpell, AttackSpeed, IceTomb, RockRise };
+        cooldownList = new List<float> { 0, fireballCooldown, waterPullCooldown, iceShieldCooldown, lightningCooldown, gShotgunCooldown, plantRootCooldown, cSpellCooldown, attackSpeedCooldown,  iceTombCooldown, rockRiseCooldown };
         StartCoroutine(EnableFirstSpells());
         basicAttackItemFrame = spellIndicatorList[0].GetComponent<ItemFrame>();
         StartCoroutine(HealthRegen());
@@ -118,18 +124,23 @@ public class Player : MonoBehaviour {
     private void ScaleHPBar() {
         playerHP.transform.localScale = new Vector2(57.25f * ((float)health/startHealth), 1.25f);
         Color temp = redVignette.color;
-        temp.a = maxOpacity * (1-Mathf.Pow((float)health/startHealth,2));
+        temp.a = maxOpacity * Mathf.Pow(1-(float)health/startHealth,2);
         redVignette.color = temp;
     }
     
     private IEnumerator HealthRegen() {
         while (true) {
-            if (health <= startHealth - healAmount && waveManager.transform.childCount > 3) { health += healAmount; }
+            if (health <= startHealth - regenAmount && waveManager.transform.childCount > 3) { health += regenAmount; }
             ScaleHPBar();
             yield return new WaitForSeconds(1f);
         }
     }
 
+    public void HealAfterBoss() {
+        health = Mathf.Clamp(health + bossRegenAmount, 0, startHealth);
+        ScaleHPBar();
+    }
+    
     private IEnumerator EnableFirstSpells() {
         yield return new WaitForSeconds(0.1f);
         basicAttackItemFrame.dropper.SetActive(false);
@@ -152,9 +163,10 @@ public class Player : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.Q)) {  if(unlockedSpells >= 7) { spellList[6](6); } }
             if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
             if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
-            // flamethrower, forcepush, ice volley, spin attack, wind slash, boomerang, bounding box
-            // if (Input.GetKeyDown(KeyCode.Space)) { UnlockNextSpell(); }
-            // if (Input.GetKeyDown(KeyCode.Z)) { UnlockNextStaff(); }
+            if (Input.GetKeyDown(KeyCode.T)) {  if(unlockedSpells >= 10) { spellList[9](9); } }
+            // if (Input.GetKeyDown(KeyCode.J)) { UnlockNextSpell(); }
+            // if (Input.GetKeyDown(KeyCode.K)) { UnlockNextStaff(); }
+            // if (Input.GetKeyDown(KeyCode.L)) { HealAfterBoss(); }
         }
     }
     
@@ -279,10 +291,10 @@ public class Player : MonoBehaviour {
             waterPullUsed = true;
             StartCoroutine(CountdownCooldownFor("waterPull"));
             GameObject b = Instantiate(waterPullBorder, drop, Quaternion.identity);
-            b.transform.localScale = new Vector2(6f, 6f);
+            b.transform.localScale = new Vector2(7.5f, 7.5f);
             Bullet c = FireProjectile(
                 0, waterPullDamage, 0, 0, 
-                new Vector2(5, 5), 
+                new Vector2(7.5f, 7.5f), 
                 Bullet.Behavior.Linger, 
                 Colors.invisible, 
                 drop
@@ -323,7 +335,7 @@ public class Player : MonoBehaviour {
                 drop,
                 roundBullet
             );
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(3f);
             if (c != null) { Destroy(c.gameObject); }
             Destroy(b);
         }
@@ -371,8 +383,7 @@ public class Player : MonoBehaviour {
         }
     }
     
-    private void IceShield(int spellIndex) { StartCoroutine(IceShieldCoro(spellIndex)); }
-    private IEnumerator IceShieldCoro(int spellIndex) {
+    private void IceShield(int spellIndex) {
         if (!iceShieldUsed) {
             soundManager.PlayClip("icesound");
             PutSpellOnCooldown(spellIndex + 1);
@@ -382,9 +393,69 @@ public class Player : MonoBehaviour {
             GameObject g = Instantiate(iceShield, drop, Quaternion.identity);
             float theta = GetAngleToCursor(transform.position) + Mathf.PI/2;
             g.transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, theta * Mathf.Rad2Deg));
-            yield return new WaitForSeconds(iceShieldDuration);
-            Destroy(g);
+            StartCoroutine(FadeIceWall(g));
+            
         }
+    }
+    
+    private IEnumerator FadeIceWall(GameObject g) {
+        SpriteRenderer iceSR = g.GetComponent<SpriteRenderer>();
+        yield return new WaitForSeconds(iceShieldDuration-2f);
+        Color temp = sr.color;
+        temp.a = 1f;
+        iceSR.color = temp;
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.05f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.05f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.025f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.025f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f/2);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f/2);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a -= 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f/4);
+        }
+        for (int i = 0; i < 10; i++) {
+            temp.a += 0.05f;
+            iceSR.color = temp;
+            yield return new WaitForSeconds(0.0125f/4);
+        }
+        yield return new WaitForSeconds(0.0125f/8);
+        Destroy(g);
     }
     
     private void IceTomb(int spellIndex) { StartCoroutine(IceTombCoro(spellIndex)); }
@@ -405,6 +476,16 @@ public class Player : MonoBehaviour {
             b.rootDuration = iceTombRootDuration;
             yield return new WaitForSeconds(iceTombRootDuration);
             Destroy(b.gameObject);
+        }
+    }
+    
+    private void AttackSpeed(int spellIndex) { StartCoroutine(AttackSpeedCoro(spellIndex)); }
+    private IEnumerator AttackSpeedCoro(int spellIndex) { 
+        if (!attackSpeedUsed)  {
+            PutSpellOnCooldown(spellIndex + 1);
+            attackSpeedUsed = true;
+            StartCoroutine(CountdownCooldownFor("attackSpeed"));
+            yield return new WaitForSeconds(attackSpeedDuration);
         }
     }
     
@@ -463,6 +544,10 @@ public class Player : MonoBehaviour {
                 yield return new WaitForSeconds(iceTombCooldown);
                 iceTombUsed = false;
                 break;
+            case "attackSpeed": 
+                yield return new WaitForSeconds(attackSpeedCooldown);
+                attackSpeedUsed = false;
+                break;
             default: print($"invalid spell name ({spellName}) passed"); break;
         }
     }
@@ -487,6 +572,13 @@ public class Player : MonoBehaviour {
         }
         else { return; }
         soundManager.PlayClip("shoot");
+        float angle;
+        float offsetAmount;
+        Vector3 position;
+        float theta;
+        float rise;
+        float run;
+        Vector2 perpendicular;
         switch (curStaff) {
             case 0:
                 FireProjectile(
@@ -502,45 +594,115 @@ public class Player : MonoBehaviour {
                 );
                 break;
             case 1:
+                offsetAmount = 0.5f;
+                position = transform.position;
+                theta = GetAngleToCursor(position);
+                rise = Mathf.Sin(theta);
+                run = Mathf.Cos(theta);
+                perpendicular = new(rise*offsetAmount, -run*offsetAmount);
                 FireProjectile(
                     projectileSpeed, 
                     attackDmgs[1], 
                     0f, 
-                    GetAngleToCursor(transform.position), 
+                    GetAngleToCursor((Vector2)position - perpendicular), 
                     new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
-                    Color.white,
-                    transform.position,
+                    Color.white, 
+                    (Vector2)position + perpendicular,
+                    staff1shoot
+                );
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[1], 
+                    0f, 
+                    GetAngleToCursor((Vector2)position + perpendicular), 
+                    new Vector2(0, 0), 
+                    Bullet.Behavior.Break, 
+                    Color.white, 
+                    (Vector2)position - perpendicular,
                     staff1shoot
                 );
                 break;
             case 2:
-                float offsetAmount = 1.5f;
-                float theta = GetAngleToCursor(transform.position);
-                float rise = Mathf.Sin(theta);
-                float run = Mathf.Cos(theta);
-                Vector2 perpendicular = new(rise*offsetAmount, -run*offsetAmount);
+                offsetAmount = 1f;
+                position = transform.position;
+                theta = GetAngleToCursor(position);
+                rise = Mathf.Sin(theta);
+                run = Mathf.Cos(theta);
+                perpendicular = new(rise*offsetAmount, -run*offsetAmount);
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[2], 
+                    0f, 
+                    GetAngleToCursor((Vector2)position), 
+                    new Vector2(0, 0), 
+                    Bullet.Behavior.Break, 
+                    Color.white, 
+                    position,
+                    staff2shoot
+                );
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[2], 
+                    0f, 
+                    GetAngleToCursor((Vector2)position - perpendicular), 
+                    new Vector2(0, 0), 
+                    Bullet.Behavior.Break, 
+                    Color.white, 
+                    (Vector2)position + perpendicular,
+                    staff2shoot
+                );
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[2], 
+                    0f, 
+                    GetAngleToCursor((Vector2)position + perpendicular), 
+                    new Vector2(0, 0), 
+                    Bullet.Behavior.Break, 
+                    Color.white, 
+                    (Vector2)position - perpendicular,
+                    staff2shoot
+                );
+                break;
+            case 3:
+                offsetAmount = 1f;
+                position = transform.position;
+                theta = GetAngleToCursor(position);
+                rise = Mathf.Sin(theta);
+                run = Mathf.Cos(theta);
+                perpendicular = new(rise*offsetAmount, -run*offsetAmount);
                 FireProjectile(
                     projectileSpeed, 
                     attackDmgs[3], 
                     0f, 
-                    GetAngleToCursor((Vector2)transform.position + perpendicular), 
+                    GetAngleToCursor((Vector2)position), 
                     new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
                     Color.white, 
-                    (Vector2)transform.position + perpendicular,
-                    staff2shoot
+                    position,
+                    staff3shoot
                 );
                 FireProjectile(
                     projectileSpeed, 
                     attackDmgs[3], 
                     0f, 
-                    GetAngleToCursor((Vector2)transform.position - perpendicular), 
+                    GetAngleToCursor((Vector2)position - perpendicular), 
                     new Vector2(0, 0), 
                     Bullet.Behavior.Break, 
                     Color.white, 
-                    (Vector2)transform.position - perpendicular,
-                    staff2shoot
+                    (Vector2)position + perpendicular,
+                    staff3shoot
+                );
+                FireProjectile(
+                    projectileSpeed, 
+                    attackDmgs[3], 
+                    0f, 
+                    GetAngleToCursor((Vector2)position + perpendicular), 
+                    new Vector2(0, 0), 
+                    Bullet.Behavior.Break, 
+                    Color.white, 
+                    (Vector2)position - perpendicular,
+                    staff3shoot
                 );
                 break;
             default:
@@ -575,13 +737,14 @@ public class Player : MonoBehaviour {
         if (basicAttackItemFrame != null && basicAttackItemFrame.dropper != null) {
             basicAttackItemFrame.dropper.SetActive(true);
             basicAttackItemFrame.cover.SetActive(true);
-            for (int i = 0; i < attackSpeeds[curStaff]*9; i++) {
-                basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(attackSpeeds[curStaff] * 10));
+            float curSpeed = attackSpeedUsed ? attackSpeedChange : attackSpeeds[curStaff];
+            for (int i = 0; i < curSpeed*9; i++) {
+                basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(curSpeed * 10));
                 yield return new WaitForSeconds(0.1f);
             }
             basicAttackItemFrame.dropper.SetActive(false);
             basicAttackItemFrame.cover.SetActive(false);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.01f);
             canAttack = true;
         }
     }

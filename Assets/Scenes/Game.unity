@@ -5347,7 +5347,7 @@ Transform:
   m_Children:
   - {fileID: 1738084083}
   - {fileID: 554339195}
-  - {fileID: 437072463}
+  - {fileID: 692328477}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5661,15 +5661,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 437072462}
-  m_LocalRotation: {x: 0, y: 0, z: 0.38268343, w: 0.92387956}
-  m_LocalPosition: {x: -0.024, y: -0.042, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: 0.38268343, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: -0.041999817, z: 0}
   m_LocalScale: {x: 0.7, y: 0.7, z: 1.1666666}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2107202742}
   - {fileID: 1534115957}
   - {fileID: 555580370}
-  m_Father: {fileID: 327179483}
+  m_Father: {fileID: 1394316961}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
 --- !u!212 &437072464
@@ -8641,6 +8641,7 @@ MonoBehaviour:
   tutorialBanner: {fileID: 653082854}
   tutorialText: {fileID: 221804040}
   showTutorial: 0
+  bullets: []
 --- !u!4 &683637925
 Transform:
   m_ObjectHideFlags: 0
@@ -8681,7 +8682,7 @@ Transform:
   m_GameObject: {fileID: 692328476}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5999998, y: 0.5999998, z: 1}
+  m_LocalScale: {x: 0.5999997, y: 0.5999997, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1276550797}
@@ -8689,7 +8690,7 @@ Transform:
   - {fileID: 2039028777}
   - {fileID: 1170254204}
   - {fileID: 2092410586}
-  m_Father: {fileID: 1885279138}
+  m_Father: {fileID: 327179483}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &718842611
@@ -10358,7 +10359,7 @@ Tilemap:
       - {fileID: -519759981, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: 221584526, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: -2034516433, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 9, y: 0, z: 0}
@@ -10378,7 +10379,7 @@ Tilemap:
       - {fileID: -1878373794, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: 559091470, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: 1354728304, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 9, y: 2, z: 0}
@@ -10398,7 +10399,7 @@ Tilemap:
       - {fileID: -115115392, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: 564366640, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
       - {fileID: 1481374151, guid: 9459f9ef0dbe8cad88006a89f3ab1363, type: 3}
-      m_AnimationSpeed: 5
+      m_AnimationSpeed: 5.0000005
       m_AnimationTimeOffset: 0
       m_IsLooping: 1
   - first: {x: 6, y: 5, z: 0}
@@ -13244,17 +13245,18 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a2005d66362d7c6b0b68b822e8c41212, type: 3}
   curStaff: 0
   attackSpeeds:
+  - 0.4
   - 0.3
-  - 0.15
-  - 0.15
-  - 0.15
+  - 0.2
+  - 0.1
   attackDmgs: 05000000050000000500000005000000
   moveSpeed: 17
   canAttack: 1
   projectileSpeed: 25
   startHealth: 300
   health: 300
-  healAmount: 1
+  regenAmount: 3
+  bossRegenAmount: 50
   playerHP: {fileID: 1370771214}
   bullet: {fileID: 1879053809727320798, guid: 20017e7a1c086fa9b85692ad063e10ec, type: 3}
   fireball: {fileID: 5939150707047616055, guid: 862f102ed8cae66389b84b4503e86b2f, type: 3}
@@ -13266,14 +13268,15 @@ MonoBehaviour:
   staff0shoot: {fileID: 1886711545276141506, guid: c74644e36da863c3ab9d61f22f7a5543, type: 3}
   staff1shoot: {fileID: 1305514484864775643, guid: e22b4a45a630469d994bebfc06e2217d, type: 3}
   staff2shoot: {fileID: 1864342590976873892, guid: c49cb33821eabc5e794d5dc9c81dbf2a, type: 3}
+  staff3shoot: {fileID: 7114239232693273205, guid: 928f17150197fc70d989d43f2bd58538, type: 3}
   roundBullet: {fileID: 2937327222209831267, guid: 8664f6840ca5ef842ae1ba4c9ec5a813, type: 3}
   lStrikeBorder: {fileID: 3725844497557720189, guid: 364ff4c7922a4969c9bdd4af8d139a93, type: 3}
   lStrikeCenter: {fileID: 3922585798179134493, guid: 8e96629887e0a8d1eaaf470b68053dcb, type: 3}
   rockRiseCenter: {fileID: 3875445567824920971, guid: 5d3cc8f07d8e3bef7a3ee488de6c85a8, type: 3}
   waterPullBorder: {fileID: 7100903323560718306, guid: bd271f4c03013c8ccbec88977f1eb9b2, type: 3}
   iceShield: {fileID: 2931688302688751497, guid: 1a038e9ea87fba532b9edb3e5e5f3f4f, type: 3}
-  lightningDamage: 40
-  lightningDelay: 1.5
+  lightningDamage: 50
+  lightningDelay: 0.7
   lightningCooldown: 5
   lightningUsed: 0
   rockRiseDamage: 10
@@ -13281,37 +13284,41 @@ MonoBehaviour:
   rockRiseCooldown: 4
   rockRiseUsed: 0
   waterPullDamage: 10
-  waterPullDelay: 1.5
-  waterPullCooldown: 5
+  waterPullDelay: 2
+  waterPullCooldown: 4
   waterPullUsed: 0
-  fireballDamage: 25
-  fireballSpeed: 14
+  fireballDamage: 50
+  fireballSpeed: 15
   fireballUsed: 0
-  fireballCooldown: 3
-  gShotgunDamage: 20
-  gShotgunSpeed: 25
+  fireballCooldown: 4
+  gShotgunDamage: 12
+  gShotgunSpeed: 33
   gShotgunSpread: 10
   gShotgunCount: 5
   gShotgunUsed: 0
   gShotgunCooldown: 3
-  plantRootDamage: 45
+  plantRootDamage: 50
   plantRootSpeed: 15
   plantRootDuration: 1
   plantRootUsed: 0
   plantRootCooldown: 5
   cSpellDamage: 30
-  cSpellSpeed: 5
+  cSpellSpeed: 3
   cSpellAcc: 5
   cSpellRadius: 12
   cSpellUsed: 0
   cSpellCooldown: 7
-  iceShieldCooldown: 1.7
-  iceShieldDuration: 1
+  iceShieldCooldown: 5
+  iceShieldDuration: 3
   iceShieldUsed: 0
   iceTombDamage: 80
   iceTombRootDuration: 1.5
   iceTombCooldown: 10
   iceTombUsed: 0
+  attackSpeedChange: 0.05
+  attackSpeedCooldown: 3
+  attackSpeedDuration: 3
+  attackSpeedUsed: 0
   cooldownList: []
   redVignette: {fileID: 1969644949}
   maxOpacity: 1
@@ -13445,11 +13452,11 @@ Transform:
   m_GameObject: {fileID: 1314952081}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.59999996, y: 0.59999996, z: 1}
+  m_LocalScale: {x: 0.5999999, y: 0.59999996, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 517523915}
-  m_Father: {fileID: 1394316961}
+  m_Father: {fileID: 1369421037}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1314952083
@@ -13530,13 +13537,13 @@ Transform:
   m_GameObject: {fileID: 1365516431}
   m_LocalRotation: {x: -0, y: -0, z: 0.38268343, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1.16667}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 1.3333372}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 409499076}
   - {fileID: 1750645045}
   - {fileID: 1688456166}
-  m_Father: {fileID: 1369421037}
+  m_Father: {fileID: 1668473849}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
 --- !u!212 &1365516433
@@ -13623,7 +13630,7 @@ Transform:
   m_Children:
   - {fileID: 1080579768}
   - {fileID: 1873357615}
-  - {fileID: 1365516432}
+  - {fileID: 1314952082}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -13810,7 +13817,7 @@ Transform:
   m_Children:
   - {fileID: 920463968}
   - {fileID: 1590337926}
-  - {fileID: 1314952082}
+  - {fileID: 437072463}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -15782,10 +15789,10 @@ Transform:
   m_GameObject: {fileID: 1580903581}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.59999996, y: 0.59999996, z: 1}
+  m_LocalScale: {x: 0.5999997, y: 0.59999996, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1668473849}
+  m_Father: {fileID: 1871761523}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1580903583
@@ -16519,7 +16526,7 @@ Transform:
   m_Children:
   - {fileID: 1471294702}
   - {fileID: 1036427295}
-  - {fileID: 1580903582}
+  - {fileID: 1365516432}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -17567,12 +17574,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1858635917}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
+  m_LocalScale: {x: 0.79999995, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1871761523}
+  m_Father: {fileID: 1885279138}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1858635919
@@ -17616,7 +17623,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: a7648e8ef016acf92952ce1918edb18f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 031e127cb9ca519adbeb19fb8fe9b260, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -17659,7 +17666,7 @@ Transform:
   m_Children:
   - {fileID: 301622903}
   - {fileID: 1832233008}
-  - {fileID: 1858635918}
+  - {fileID: 1580903582}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -17846,7 +17853,7 @@ Transform:
   m_Children:
   - {fileID: 1146307262}
   - {fileID: 1262515540}
-  - {fileID: 692328477}
+  - {fileID: 1858635918}
   m_Father: {fileID: 1421544233}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

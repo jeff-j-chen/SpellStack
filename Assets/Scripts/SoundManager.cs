@@ -16,6 +16,7 @@ public class SoundManager : MonoBehaviour {
     }
     
     public void PlayClip(string clipName) {
+        print($"received request to play {clipName}");
         audioSource.PlayOneShot(audioClips[Array.IndexOf(audioClipNames, clipName)]);
     }
     

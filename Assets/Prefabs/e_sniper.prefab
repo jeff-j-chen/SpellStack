@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 757242063611310099}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -127,6 +127,7 @@ MonoBehaviour:
   firedAngle: 0
   rootDuration: 0
   behavior: 0
+  isFireball: 0
 --- !u!199 &1009772455299140984
 ParticleSystemRenderer:
   serializedVersion: 6
