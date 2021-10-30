@@ -127,6 +127,7 @@ MonoBehaviour:
   firedAngle: 0
   rootDuration: 0
   behavior: 0
+  isFireball: 0
 --- !u!70 &6594938441849171085
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -404,8 +405,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 0.9019608, g: 0.75686276, b: 0.39215687, a: 1}
-      maxColor: {r: 0.93333334, g: 0.89411765, b: 0.85882354, a: 1}
+      minColor: {r: 0.2627451, g: 0.3882353, b: 0.31764707, a: 1}
+      maxColor: {r: 0.5529412, g: 0.5686275, b: 0.33333334, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}

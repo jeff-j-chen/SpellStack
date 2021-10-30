@@ -16,7 +16,8 @@ public class SoundManager : MonoBehaviour {
     }
     
     public void PlayClip(string clipName) {
-        print($"received request to play {clipName}");
+        if (clipName == "lightningbuildupSlowed") { print("slowed"); }
+        if (clipName == "lightning") { print("lightning"); }
         audioSource.PlayOneShot(audioClips[Array.IndexOf(audioClipNames, clipName)]);
     }
     

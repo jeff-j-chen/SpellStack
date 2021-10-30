@@ -79,9 +79,11 @@ public class Player : MonoBehaviour {
     [SerializeField] private float iceTombCooldown = 1f;
     [SerializeField] private bool iceTombUsed = false;
     [SerializeField] private float attackSpeedChange = 0.05f;
-    [SerializeField] private float attackSpeedCooldown = 3f;
+    [SerializeField] private float attackSpeedCooldown = 7f;
     [SerializeField] private float attackSpeedDuration = 3f;
     [SerializeField] private bool attackSpeedUsed = false;
+    [SerializeField] private bool attackSpeedActive = false;
+    [SerializeField] private Color[] staffColors = new Color[4];
     private readonly Dictionary<string, Vector2> scales = new() {
         { "small", new Vector2(0.5f, 0.5f) },
         { "medium", new Vector2(1f, 1f) },
@@ -105,6 +107,7 @@ public class Player : MonoBehaviour {
     private SoundManager soundManager;
     private WaveManager waveManager;
     private CameraShake cameraShake;
+    private MouseCursor mouseCursor;
 
     private void Start () {
         lockActions = false;
@@ -113,9 +116,10 @@ public class Player : MonoBehaviour {
         soundManager = FindObjectOfType<SoundManager>();
         waveManager = FindObjectOfType<WaveManager>();
         cameraShake = FindObjectOfType<CameraShake>();
+        mouseCursor = FindObjectOfType<MouseCursor>();
         sr = GetComponent<SpriteRenderer>();
-        spellList = new List<Spell> { Fireball, WaterPull, IceShield, LightningStrike, GenericShotgun, PlantRoot, ConvergingSpell, AttackSpeed, IceTomb, RockRise };
-        cooldownList = new List<float> { 0, fireballCooldown, waterPullCooldown, iceShieldCooldown, lightningCooldown, gShotgunCooldown, plantRootCooldown, cSpellCooldown, attackSpeedCooldown,  iceTombCooldown, rockRiseCooldown };
+        spellList = new List<Spell> { Fireball, WaterPull, IceShield, LightningStrike, AttackSpeed,GenericShotgun, PlantRoot, ConvergingSpell, IceTomb, RockRise };
+        cooldownList = new List<float> { 0, fireballCooldown, waterPullCooldown, iceShieldCooldown, lightningCooldown, attackSpeedCooldown, gShotgunCooldown, plantRootCooldown, cSpellCooldown,   iceTombCooldown, rockRiseCooldown };
         StartCoroutine(EnableFirstSpells());
         basicAttackItemFrame = spellIndicatorList[0].GetComponent<ItemFrame>();
         StartCoroutine(HealthRegen());
@@ -164,9 +168,9 @@ public class Player : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.E)) {  if(unlockedSpells >= 8) { spellList[7](7); } }
             if (Input.GetKeyDown(KeyCode.R)) {  if(unlockedSpells >= 9) { spellList[8](8); } }
             if (Input.GetKeyDown(KeyCode.T)) {  if(unlockedSpells >= 10) { spellList[9](9); } }
-            // if (Input.GetKeyDown(KeyCode.J)) { UnlockNextSpell(); }
-            // if (Input.GetKeyDown(KeyCode.K)) { UnlockNextStaff(); }
-            // if (Input.GetKeyDown(KeyCode.L)) { HealAfterBoss(); }
+            if (Input.GetKeyDown(KeyCode.J)) { UnlockNextStaff(); }
+            if (Input.GetKeyDown(KeyCode.K)) { UnlockNextSpell(); }
+            if (Input.GetKeyDown(KeyCode.L)) { HealAfterBoss(); }
         }
     }
     
@@ -484,8 +488,10 @@ public class Player : MonoBehaviour {
         if (!attackSpeedUsed)  {
             PutSpellOnCooldown(spellIndex + 1);
             attackSpeedUsed = true;
+            attackSpeedActive = true;
             StartCoroutine(CountdownCooldownFor("attackSpeed"));
             yield return new WaitForSeconds(attackSpeedDuration);
+            attackSpeedActive = false;
         }
     }
     
@@ -572,7 +578,7 @@ public class Player : MonoBehaviour {
         }
         else { return; }
         soundManager.PlayClip("shoot");
-        float angle;
+        StartCoroutine(mouseCursor.AttackAnimation(staffColors[curStaff]));
         float offsetAmount;
         Vector3 position;
         float theta;
@@ -737,7 +743,7 @@ public class Player : MonoBehaviour {
         if (basicAttackItemFrame != null && basicAttackItemFrame.dropper != null) {
             basicAttackItemFrame.dropper.SetActive(true);
             basicAttackItemFrame.cover.SetActive(true);
-            float curSpeed = attackSpeedUsed ? attackSpeedChange : attackSpeeds[curStaff];
+            float curSpeed = attackSpeedActive ? attackSpeedChange : attackSpeeds[curStaff];
             for (int i = 0; i < curSpeed*9; i++) {
                 basicAttackItemFrame.dropper.transform.localPosition = new Vector2(0, -i*1.4f/(curSpeed * 10));
                 yield return new WaitForSeconds(0.1f);

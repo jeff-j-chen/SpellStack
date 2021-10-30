@@ -121,11 +121,13 @@ public class Enemy : MonoBehaviour {
                 MoveToPlayer(true);
             }
             else if (curMovementType == MovementType.MaintainDistance) { 
-                if (DistFormula(transform.position, player.transform.position) > distanceToMaintain) { 
-                    MoveToPlayer(false);
-                }
-                else { 
-                    MoveToPlayer(true);
+                if (player != null) {
+                    if (DistFormula(transform.position, player.transform.position) > distanceToMaintain) { 
+                        MoveToPlayer(false);
+                    }
+                    else { 
+                        MoveToPlayer(true);
+                    }
                 }
             }
         }
@@ -154,6 +156,7 @@ public class Enemy : MonoBehaviour {
 
     public void ChangeHealthBy(int amount) {
         if (!isInvincible) {
+            if (patterns == null) { return; }
             foreach (float percentage in patterns[enemyType].Keys) {
                 int threshold = (int)Mathf.Round(percentage * healthDict[enemyType]);
                 if (health > threshold && health - amount <= threshold) {
@@ -396,6 +399,7 @@ public class Enemy : MonoBehaviour {
     private IEnumerator LightningChase() {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
+            print("playing lightning buildup!");
             soundManager.PlayClip("lightningbuildupSlowed");
             for (int i = 0; i < lightningCount; i++) {
                 waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
@@ -405,6 +409,7 @@ public class Enemy : MonoBehaviour {
             Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, projectilePrefab:shotgunBullet);
             yield return new WaitForSeconds(2f);
             cameraShake.Shake();
+            print("playing lightning strike!");
             soundManager.PlayClip("lightning");
         }
     }
@@ -452,6 +457,8 @@ public class Enemy : MonoBehaviour {
                     temp.a += 0.05f;
                     sr.color = temp;
                 }
+                freezeMovement = false;
+                isInvincible = false;
             }
             else {
                 yield return new WaitForSeconds(delay);

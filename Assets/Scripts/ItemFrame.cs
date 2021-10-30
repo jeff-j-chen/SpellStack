@@ -26,6 +26,7 @@ public class ItemFrame : MonoBehaviour {
     }
 
     private IEnumerator PutOnCooldownForCoro(float cooldown) {
+        yield return new WaitForSeconds(0.05f);
         dropper.SetActive(true);
         cover.SetActive(true);
         for (int i = 0; i < cooldown*10; i++) {

@@ -29,6 +29,8 @@ public class WaveManager : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI tutorialText;
     [SerializeField] private bool showTutorial;
     [SerializeField] public List<GameObject> bullets = new();
+    [SerializeField] private bool lockWave = false;
+
     private Player player;
     private SoundManager soundManager;
     private Coroutine bossMinions;
@@ -123,279 +125,288 @@ public class WaveManager : MonoBehaviour {
     }
     
     private IEnumerator NextWave() {
-        curWave++;
-        for (int i = 0; i < transform.childCount; i++) {
-            Destroy(transform.GetChild(i).gameObject);
-        }
-        foreach (GameObject b in bullets) {
-            if (b != null) { Destroy(b); }
-        }
-        if (bossMinions != null) { StopCoroutine(bossMinions); }
-        bullets.Clear();
-        bossBar.SetActive(false);
-        bossBarBg.SetActive(false);
-        switch (curWave) {
-            // regular: yellow, simpletracker: green, shotgun: babyblue, machinegun: orange, fatshot: purple, wavy:green
-            case 1:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(7.5f);
-                if (showTutorial) {
-                    TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <Space> to hide these messages in the future.", 6f);
-                    yield return new WaitForSeconds(7.7f);
+        if (!lockWave) {
+            lockWave = true;
+            curWave++;
+            for (int i = 0; i < transform.childCount; i++) {
+                Destroy(transform.GetChild(i).gameObject);
+            }
+            foreach (GameObject b in bullets) {
+                if (b != null) { Destroy(b); }
+            }
+            if (bossMinions != null) { StopCoroutine(bossMinions); }
+            bullets.Clear();
+            bossBar.SetActive(false);
+            bossBarBg.SetActive(false);
+            waveText.fontSize = curWave == 12 ? 64 : 128;
+            switch (curWave) {
+                // regular: yellow, simpletracker: green, shotgun: babyblue, machinegun: orange, fatshot: purple, wavy:green
+                case 1:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(7.5f);
                     if (showTutorial) {
-                        TutorialText("Coming up is a basic enemy - very simple to dispatch with a basic attack.", 5f);
+                        TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <Space> to hide these messages in the future.", 6f);
+                        yield return new WaitForSeconds(7.7f);
+                        if (showTutorial) {
+                            TutorialText("Coming up is a basic enemy - very simple to dispatch with a basic attack.", 5f);
+                            yield return new WaitForSeconds(5.5f);
+                        }
+                    }
+                    liveEnemies = 1;
+                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn:true, reduceHealth:true);
+                    break;
+                case 2:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    if (showTutorial) {
+                        TutorialText("With more enemies, spells become important.\nPress <1> to incinerate your enemies with a fireball!", 5f);
                         yield return new WaitForSeconds(5.5f);
                     }
-                }
-                liveEnemies = 1;
-                SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn:true, reduceHealth:true);
-                break;
-            case 2:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                if (showTutorial) {
-                    TutorialText("With more enemies, spells become important.\nPress <1> to incinerate your enemies with a fireball!", 5f);
-                    yield return new WaitForSeconds(5.5f);
-                }
-                liveEnemies = 4;
-                for (int i = 0; i < 1; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn: true);
-                }
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn: true);
-                }
-                break;
-            case 3:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                if (showTutorial) {
-                    TutorialText("More spells means you can combo them together for more power.\nUse <1> and <2> on the same spot to pull enemies and guarantee your fireball to hit!", 5f);
-                    yield return new WaitForSeconds(5.5f);
-                }
-                liveEnemies = 10;
-                for (int i = 0; i < 2; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(3f);
-                for (int i = 0; i < 4; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(2f);
-                for (int i = 0; i < 2; i++) {
-                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(2f);
-                for (int i = 0; i < 2; i++) {
-                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                break;
-            case 4:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                liveEnemies = 7;
-                SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                yield return new WaitForSeconds(0.8f);
-                SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                yield return new WaitForSeconds(0.8f);
-                SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
-                yield return new WaitForSeconds(0.8f);
-                yield return new WaitForSeconds(6f);
-                SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                yield return new WaitForSeconds(0.8f);
-                SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                yield return new WaitForSeconds(0.8f);
-                SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                yield return new WaitForSeconds(0.8f);
-                SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
-                yield return new WaitForSeconds(0.8f);
-                break;
-            case 5: 
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                if (showTutorial) {
-                    TutorialText("First bossfight incoming - good luck!", 3f);
-                    yield return new WaitForSeconds(3.5f);
-                }
-                ScaleBossHP(1);
-                bossBar.SetActive(true);
-                bossBarBg.SetActive(true);
-                liveEnemies = 1;
-                SummonEnemy(Enemy.EnemyType.BossOne, Colors.pastelRed, forceCenterSpawn:true);
-                bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossOne));
-                break;
-            case 6:
-                player.HealAfterBoss();
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f+1.5f);
-                if (showTutorial) {
-                    TutorialText("After defeating a boss, your staff is upgraded and you are partially healed.", 3f);
-                    yield return new WaitForSeconds(3.5f);
-                }
-                yield return new WaitForSeconds(3.5f);
-                liveEnemies = 24;
-                for (int i = 0; i < 5; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                for (int i = 0; i < 5; i++) {
-                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                for (int i = 0; i < 5; i++) {
-                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                break;
-            case 7:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                liveEnemies = 21;
-                for (int i = 0; i < 4; i++) {
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 5; i++) {
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                yield return new WaitForSeconds(5f);
-                for (int i = 0; i < 3; i++) {
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                for (int i = 0; i < 6; i++) {
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
-                    yield return new WaitForSeconds(0.8f);
-                }
-                break;
-            case 8:                 
-                ScaleBossHP(1);
-                bossBar.SetActive(true);
-                bossBarBg.SetActive(true);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                liveEnemies = 1;
-                SummonEnemy(Enemy.EnemyType.BossTwo, Colors.orange, forceCenterSpawn:true);
-                bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossTwo));
-                break;
-            case 9:
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                player.HealAfterBoss();
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f+1.5f);
-                liveEnemies = 22;
-                SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
-                yield return new WaitForSeconds(7f);
-                for (int i = 0; i < 4; i++) {
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
-                    yield return new WaitForSeconds(0.8f);
+                    liveEnemies = 4;
+                    for (int i = 0; i < 1; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn: true);
+                    }
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow, forceCenterSpawn: true);
+                    }
+                    break;
+                case 3:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    if (showTutorial) {
+                        TutorialText("More spells means you can combo them together for more power.\nUse <1> and <2> on the same spot to pull enemies and guarantee your fireball to hit!", 5f);
+                        yield return new WaitForSeconds(5.5f);
+                    }
+                    liveEnemies = 10;
+                    for (int i = 0; i < 2; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        yield return new WaitForSeconds(0.8f);
+                    }
                     yield return new WaitForSeconds(3f);
-                }
-                break;
-            case 10:
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f);
-                ScaleBossHP(1);
-                bossBar.SetActive(true);
-                bossBarBg.SetActive(true);
-                liveEnemies = 1;
-                SummonEnemy(Enemy.EnemyType.BossThree, Colors.red, forceCenterSpawn:true);
-                bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossThree));
-                break;
-            case 11:
-                player.HealAfterBoss();
-                bossBar.SetActive(false);
-                bossBarBg.SetActive(false);
-                StartCoroutine(SlideCardDown());
-                yield return new WaitForSeconds(5f+1.5f);        
-                TutorialText("Good luck :)", 3f);
-                yield return new WaitForSeconds(3f);  
-                liveEnemies = 80;
-                for (int i = 0; i < 5; i++) {
-                    SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
-                    SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
-                    yield return new WaitForSeconds(0.8f);
+                    for (int i = 0; i < 4; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(2f);
+                    for (int i = 0; i < 2; i++) {
+                        SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(2f);
+                    for (int i = 0; i < 2; i++) {
+                        SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    break;
+                case 4:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    liveEnemies = 7;
                     SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
-                    yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
-                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
                     yield return new WaitForSeconds(0.8f);
                     SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                    yield return new WaitForSeconds(0.8f);
+                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
+                    yield return new WaitForSeconds(0.8f);
+                    yield return new WaitForSeconds(6f);
+                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                    yield return new WaitForSeconds(0.8f);
+                    SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                    yield return new WaitForSeconds(0.8f);
                     SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                    SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
                     yield return new WaitForSeconds(0.8f);
+                    break;
+                case 5: 
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    if (showTutorial) {
+                        TutorialText("First bossfight incoming - good luck!", 3f);
+                        yield return new WaitForSeconds(3.5f);
+                    }
+                    ScaleBossHP(1);
+                    bossBar.SetActive(true);
+                    bossBarBg.SetActive(true);
+                    liveEnemies = 1;
+                    SummonEnemy(Enemy.EnemyType.BossOne, Colors.pastelRed, forceCenterSpawn:true);
+                    bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossOne));
+                    break;
+                case 6:
+                    player.HealAfterBoss();
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f+1.5f);
+                    if (showTutorial) {
+                        TutorialText("After defeating a boss, your staff is upgraded and you are partially healed.", 3f);
+                        yield return new WaitForSeconds(3.5f);
+                    }
+                    yield return new WaitForSeconds(3.5f);
+                    liveEnemies = 24;
+                    for (int i = 0; i < 5; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    for (int i = 0; i < 5; i++) {
+                        SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    for (int i = 0; i < 5; i++) {
+                        SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    break;
+                case 7:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    liveEnemies = 21;
+                    for (int i = 0; i < 4; i++) {
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 5; i++) {
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    yield return new WaitForSeconds(5f);
+                    for (int i = 0; i < 3; i++) {
+                        SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    for (int i = 0; i < 6; i++) {
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        yield return new WaitForSeconds(0.8f);
+                    }
+                    break;
+                case 8:                 
+                    ScaleBossHP(1);
+                    bossBar.SetActive(true);
+                    bossBarBg.SetActive(true);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    liveEnemies = 1;
+                    SummonEnemy(Enemy.EnemyType.BossTwo, Colors.orange, forceCenterSpawn:true);
+                    bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossTwo));
+                    break;
+                case 9:
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    player.HealAfterBoss();
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f+1.5f);
+                    liveEnemies = 22;
                     SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
-                    yield return new WaitForSeconds(12f);
-                }
-                break;
-            case 12: 
-                waveText.text = "Game complete! Attempts: " + PlayerPrefs.GetInt("deaths");
-                for (int i = 1; i < 41; i++) {
-                    cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
-                    waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
-                    yield return new WaitForSeconds(0.025f);
-                }
-                StartCoroutine(HideGame());
-                soundManager.PlayClip("unlocked");
-                break;
-            default: Debug.LogError($"this wave ({curWave}) was not accounted for!"); break;
+                    SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
+                    yield return new WaitForSeconds(7f);
+                    for (int i = 0; i < 4; i++) {
+                        SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
+                        yield return new WaitForSeconds(0.8f);
+                        yield return new WaitForSeconds(3f);
+                    }
+                    break;
+                case 10:
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f);
+                    ScaleBossHP(1);
+                    bossBar.SetActive(true);
+                    bossBarBg.SetActive(true);
+                    liveEnemies = 1;
+                    SummonEnemy(Enemy.EnemyType.BossThree, Colors.red, forceCenterSpawn:true);
+                    bossMinions = StartCoroutine(SpawnMinionsFor(Enemy.EnemyType.BossThree));
+                    break;
+                case 11:
+                    player.HealAfterBoss();
+                    bossBar.SetActive(false);
+                    bossBarBg.SetActive(false);
+                    StartCoroutine(SlideCardDown());
+                    yield return new WaitForSeconds(5f+1.5f);        
+                    TutorialText("Good luck :)", 3f);
+                    yield return new WaitForSeconds(3f);  
+                    liveEnemies = 80;
+                    for (int i = 0; i < 5; i++) {
+                        SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
+                        SummonEnemy(Enemy.EnemyType.LightningMage, Colors.red);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                        SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
+                        SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                        SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                        yield return new WaitForSeconds(0.8f);
+                        SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                        SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                        yield return new WaitForSeconds(12f);
+                    }
+                    break;
+                case 12: 
+                    waveText.text = "Game complete! Attempts: " + PlayerPrefs.GetInt("deaths");
+                    for (int i = 1; i < 41; i++) {
+                        cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
+                        waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
+                        yield return new WaitForSeconds(0.025f);
+                    }
+                    StartCoroutine(HideGame());
+                    soundManager.PlayClip("unlocked");
+                    break;
+                default: Debug.LogError($"this wave ({curWave}) was not accounted for!"); break;
+            }
+            yield return new WaitForSeconds(2f);
+            lockWave = false;
+        }
+        else {
+            print("tried to advance waves while locked!");
         }
     }
     
@@ -409,30 +420,30 @@ public class WaveManager : MonoBehaviour {
                     yield return new WaitForSeconds(0.8f);
                     SummonEnemy(Enemy.EnemyType.FleeingTracker, Colors.aqua, true);
                     yield return new WaitForSeconds(0.8f);
-                    yield return new WaitForSeconds(12.5f);
+                    yield return new WaitForSeconds(10f);
                     break;
                 }
                 case Enemy.EnemyType.BossTwo:
                     SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta, true);
                     yield return new WaitForSeconds(0.8f);
                     yield return new WaitForSeconds(10f);
                     break;
                 case Enemy.EnemyType.BossThree:
                     SummonEnemy(Enemy.EnemyType.Shotgun, Colors.babyBlue, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange);
+                    SummonEnemy(Enemy.EnemyType.MachineGunner, Colors.orange, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta);
+                    SummonEnemy(Enemy.EnemyType.FatShot, Colors.magenta, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen, true);
                     yield return new WaitForSeconds(0.8f);
-                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen);
+                    SummonEnemy(Enemy.EnemyType.WavyShooter, Colors.pastelGreen, true);
                     yield return new WaitForSeconds(0.8f);
-                    yield return new WaitForSeconds(7.5f);
+                    yield return new WaitForSeconds(10f);
                     break;
                 default: 
                     Debug.LogError($"shouldn't be spawning boss minions for {enemyType}");
@@ -446,7 +457,7 @@ public class WaveManager : MonoBehaviour {
         bossBar.transform.localScale = new Vector2(28f * percentage, 1);
     }
     
-    private void SummonEnemy(Enemy.EnemyType enemyType, Color color, bool isUseless=false, bool forceCenterSpawn=false, bool reduceHealth=true) {
+    private void SummonEnemy(Enemy.EnemyType enemyType, Color color, bool isUseless=false, bool forceCenterSpawn=false, bool reduceHealth=false) {
         Vector3 pt = forceCenterSpawn 
             ? spawnPoints[PointNames.Center] 
             : spawnPoints[spawnPointList[Random.Range(0, spawnPoints.Count)]] + new Vector2(Random.Range(-2f, 2f), Random.Range(-2f, 2f));
