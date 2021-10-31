@@ -6,9 +6,14 @@ public class SoundManager : MonoBehaviour {
     [SerializeField] private AudioClip[] musicPieces;
     [SerializeField] private string[] musicPieceNames;
     private AudioSource audioSource;
+    private bool sfxEnabled;
+    private int soundLevel;
     
     private void Start() {
+        sfxEnabled = PlayerPrefs.GetString("sfx") == "true" ? true : false;
+        soundLevel = PlayerPrefs.GetInt("soundLevel");
         audioSource = GetComponent<AudioSource>();
+        audioSource.GetComponent<AudioSource>().volume = sfxEnabled ? soundLevel * 0.25f : 0;
         audioClipNames = new string[audioClips.Length];
         for (int i = 0; i < audioClips.Length; i++) {
             audioClipNames[i] = audioClips[i].name;

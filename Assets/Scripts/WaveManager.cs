@@ -73,7 +73,7 @@ public class WaveManager : MonoBehaviour {
         // text: 456 -> 0
         if (curWave != 1) { waveText.text = "new spell unlocked!"; }
         else { 
-            waveText.text = "SpellStack";
+            waveText.text = "get ready...";
         }
         for (int i = 1; i < 41; i++) {
             cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
@@ -147,7 +147,7 @@ public class WaveManager : MonoBehaviour {
                     StartCoroutine(SlideCardDown());
                     yield return new WaitForSeconds(7.5f);
                     if (showTutorial) {
-                        TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <Space> to hide these messages in the future.", 6f);
+                        TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <P> to pause the game", 6f);
                         yield return new WaitForSeconds(7.7f);
                         if (showTutorial) {
                             TutorialText("Coming up is a basic enemy - very simple to dispatch with a basic attack.", 5f);

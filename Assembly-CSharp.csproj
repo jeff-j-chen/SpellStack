@@ -49,10 +49,12 @@
      <Compile Include="Assets\Scripts\MouseCursor.cs" />
      <Compile Include="Assets\Scripts\Fader.cs" />
      <Compile Include="Assets\Scripts\ItemFrame.cs" />
+     <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Colors.cs" />
      <Compile Include="Assets\Scripts\RetryButton.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\SoundManager.cs" />
+     <Compile Include="Assets\Scripts\MenuButton.cs" />
      <Compile Include="Assets\Scripts\Destroyer.cs" />
      <Compile Include="Assets\Scripts\Enemy.cs" />
      <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

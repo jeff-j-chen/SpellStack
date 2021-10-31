@@ -372,6 +372,8 @@
 "Assets/Scripts/Fader.cs"
 "Assets/Scripts/Initiate.cs"
 "Assets/Scripts/ItemFrame.cs"
+"Assets/Scripts/Menu.cs"
+"Assets/Scripts/MenuButton.cs"
 "Assets/Scripts/MouseCursor.cs"
 "Assets/Scripts/Music.cs"
 "Assets/Scripts/Player.cs"

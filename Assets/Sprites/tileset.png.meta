@@ -4045,6 +4045,48 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: tileset_186
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 144
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 084c8f100f8748d939e507aaff107359
+      internalID: 633518776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: tileset_187
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 128
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1b0c22505ab1dcef95ed74c61c3869e
+      internalID: 919496724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -4137,6 +4179,7 @@ TextureImporter:
       tileset_32: 537303389
       tileset_16: 893423499
       tileset_13: -1859446879
+      tileset_187: 919496724
       tileset_69: -456024591
       tileset_63: -500023770
       tileset_87: -542153016
@@ -4146,19 +4189,20 @@ TextureImporter:
       tileset_114: 496696594
       tileset_36: 1713874631
       tileset_83: 166803949
+      tileset_186: 633518776
       tileset_4: -1904908724
       tileset_108: -431859544
       tileset_124: 1411622129
       tileset_6: -838034363
-      tileset_70: 777029724
-      tileset_145: 533313880
       tileset_169: -1473089749
+      tileset_145: 533313880
+      tileset_70: 777029724
       tileset_103: -1528518750
       tileset_46: 1560555114
       tileset_8: -1527353886
-      tileset_52: -1928522347
-      tileset_101: -72890217
       tileset_177: -99246593
+      tileset_101: -72890217
+      tileset_52: -1928522347
       tileset_125: 279867391
       tileset_175: -78103994
       tileset_85: -1339848822

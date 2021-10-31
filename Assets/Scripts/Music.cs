@@ -6,9 +6,14 @@ public class Music : MonoBehaviour {
     [SerializeField] private AudioClip[] musicPieces;
     [SerializeField] private string[] musicPieceNames;
     public AudioSource audioSource;
+    private bool musicEnabled;
+    private int soundLevel;
     
     private void Awake() {
+        musicEnabled = PlayerPrefs.GetString("music") == "true" ? true : false;
+        soundLevel = PlayerPrefs.GetInt("soundLevel");
         audioSource = GetComponent<AudioSource>();
+        audioSource.volume = musicEnabled ? 0.05f : 0;
         musicPieceNames = new string[musicPieces.Length];
         for (int i = 0; i < musicPieces.Length; i++) {
             musicPieceNames[i] = musicPieces[i].name;
@@ -17,7 +22,7 @@ public class Music : MonoBehaviour {
     }
     
     private void Start() {
-        
+        GetComponent<AudioSource>().volume = PlayerPrefs.GetString("music", "true") == "true" ? 0.05f : 0;
         StartCoroutine(PlayMusic("Karl"));
     }
     
