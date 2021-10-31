@@ -10,7 +10,7 @@ Available memory:        16008 MB
 Using pre-set license
 Pro License: NO
 
-(Unity:51390): Gdk-CRITICAL **: 18:30:02.892: gdk_window_get_cursor: assertion 'GDK_IS_WINDOW (window)' failed
+(Unity:7454): Gdk-CRITICAL **: 20:54:29.629: gdk_window_get_cursor: assertion 'GDK_IS_WINDOW (window)' failed
 Desktop is 1600 x 900 @ 60 Hz
 Initialize udev device monitor.
 
@@ -26,7 +26,7 @@ AssetImportWorker0
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-36383
+39799
 Successfully changed project path to: /home/jeff/Documents/Unity Projects/SpellStack
 /home/jeff/Documents/Unity Projects/SpellStack
 [UnityMemory] Configuration Parameters - Can be set up in boot.config
@@ -58,7 +58,7 @@ Successfully changed project path to: /home/jeff/Documents/Unity Projects/SpellS
     "memorysetup-temp-allocator-size-cloud-worker=32768"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Refreshing native plugins compatible for Editor in 167.72 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 188.08 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2021.2.0b1 (b0978dae4864)
 [Subsystems] Discovering subsystems at path /home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/Resources/UnitySubsystems
@@ -76,56 +76,56 @@ ARB_texture_non_power_of_two GL_ARB_texture_query_levels GL_ARB_texture_query_lo
 GL_EXT_bindable_uniform GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_compiled_vertex_array GL_EXT_copy_buffer GL_EXT_copy_texture GL_EXT_depth_bounds_test GL_EXT_direct_state_access GL_EXT_draw_buffers2 GL_EXT_draw_instanced GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_framebuffer_blit GL_EXT_framebuffer_multisample GL_EXT_framebuffer_object GL_EXT_framebuffer_sRGB GL_EXT_geometry_shader4 GL_EXT_gpu_program_parameters GL_EXT_gpu_shader4 GL_EXT_histogram GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_multi_draw_arrays GL_EXT_packed_depth_stencil GL_EXT_packed_float GL_EXT_packed_pixels GL_EXT_pixel_buffer_object GL_EXT_point_parameters GL_EXT_polygon_offset_clamp GL_EXT_provoking_vertex GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_semaphore GL_EXT_semaphore_fd GL_EXT_separate_specular_color GL_EXT_shader_image_load_store GL_EXT_shader_integer_mix GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_t
 exgen_reflection GL_EXT_texture3D GL_EXT_texture_array GL_EXT_texture_buffer_object GL_EXT_texture_compression_bptc GL_EXT_texture_compression_latc GL_EXT_texture_compression_rgtc GL_EXT_texture_compression_s3tc GL_EXT_texture_cube_map GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_integer GL_EXT_texture_lod GL_EXT_texture_lod_bias GL_EXT_texture_mirror_clamp GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_texture_sRGB GL_EXT_texture_sRGB_R8 GL_EXT_texture_sRGB_RG8 GL_EXT_texture_sRGB_decode GL_EXT_texture_shared_exponent GL_EXT_texture_snorm GL_EXT_texture_storage GL_EXT_texture_swizzle GL_EXT_timer_query GL_EXT_transform_feedback GL_EXT_vertex_array GL_EXT_vertex_array_bgra GL_EXT_vertex_attrib_64bit GL_IBM_texture_mirrored_repeat GL_KHR_context_flush_control GL_KHR_debug GL_KHR_no_error GL_KHR_parallel_shader_compile GL_KHR_robust_buffer_access_behavior GL_KHR_robustness GL_KTX_buffer_region GL_NV_a
 lpha_to_coverage_dither_control GL_NV_blend_square GL_NV_conditional_render GL_NV_copy_depth_to_color GL_NV_copy_image GL_NV_depth_buffer_float GL_NV_explicit_multisample GL_NV_float_buffer GL_NV_half_float GL_NV_primitive_restart GL_NV_shader_atomic_int64 GL_NV_texgen_reflection GL_NV_texture_barrier GL_NV_vdpau_interop GL_OES_EGL_image GL_SGIS_generate_mipmap GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SUN_multi_draw_arrays GL_WIN_swap_hint
-OPENGL LOG: Creating OpenGL 4.5 graphics device ; Context level  <OpenGL 4.5> ; Context handle -1226017856
+OPENGL LOG: Creating OpenGL 4.5 graphics device ; Context level  <OpenGL 4.5> ; Context handle -695461136
 Initialize mono
 Mono path[0] = '/home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/Managed'
 Mono path[1] = '/home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-linux'
 Mono config path = '/home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56390
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56454
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: /home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: /home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
 Register platform support module: /home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
 Register platform support module: /home/jeff/Unity/Hub/Editor/2021.2.0b1/Editor/Data/PlaybackEngines/LinuxStandaloneSupport/UnityEditor.LinuxStandalone.Extensions.dll
-Registered in 0.014761 seconds.
+Registered in 0.017087 seconds.
 Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 162.24 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 195.25 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.373 seconds
+- Completed reload, in  1.616 seconds
 Domain Reload Profiling:
-	ReloadAssembly (1413ms)
-		BeginReloadAssembly (65ms)
+	ReloadAssembly (1660ms)
+		BeginReloadAssembly (67ms)
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (0ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
 			CreateAndSetChildDomain (1ms)
-		EndReloadAssembly (922ms)
-			LoadAssemblies (62ms)
+		EndReloadAssembly (1085ms)
+			LoadAssemblies (65ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (327ms)
+			SetupTypeCache (386ms)
 			ReleaseScriptCaches (0ms)
-			RebuildScriptCaches (43ms)
-			SetupLoadedEditorAssemblies (431ms)
+			RebuildScriptCaches (49ms)
+			SetupLoadedEditorAssemblies (504ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (20ms)
-				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (162ms)
+				InitializePlatformSupportModulesInManaged (22ms)
+				SetLoadedEditorAssemblies (1ms)
+				RefreshPlugins (195ms)
 				BeforeProcessingInitializeOnLoad (2ms)
-				ProcessInitializeOnLoadAttributes (173ms)
-				ProcessInitializeOnLoadMethodAttributes (74ms)
+				ProcessInitializeOnLoadAttributes (203ms)
+				ProcessInitializeOnLoadMethodAttributes (81ms)
 				AfterProcessingInitializeOnLoad (0ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
 			AwakeInstancesAfterBackupRestoration (0ms)
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.008747 seconds.
+Registered in 0.009250 seconds.
 Begin MonoManager ReloadAssembly
 Symbol file LoadedFromMemory doesn't match image /home/jeff/Documents/Unity Projects/SpellStack/Library/PackageCache/com.unity.visualscripting@1.7.2/Editor/VisualScripting.Core/Dependencies/YamlDotNet/Unity.VisualScripting.YamlDotNet.dll
 Symbol file LoadedFromMemory doesn't match image /home/jeff/Documents/Unity Projects/SpellStack/Library/PackageCache/com.unity.visualscripting@1.7.2/Editor/VisualScripting.Core/Dependencies/DotNetZip/Unity.VisualScripting.IonicZip.dll
@@ -133,7 +133,7 @@ Native extension for LinuxStandalone target not found
 Native extension for WindowsStandalone target not found
 Native extension for OSXStandalone target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 194.19 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 202.50 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 [com.unity.burst] Burst is disabled entirely, either from the command line or because this is not the main Unity process
 UnityEngine.StackTraceUtility:ExtractStackTrace () (at /home/bokken/buildslave/unity/build/Runtime/Export/Scripting/StackTrace.cs:37)
@@ -147,43 +147,43 @@ UnityEditor.EditorAssemblies:ProcessInitializeOnLoadAttributes (System.Type[]) (
 (Filename: Library/PackageCache/com.unity.burst@1.6.0-pre.2/Editor/BurstLoader.cs Line: 107)
 
 Mono: successfully reloaded assembly
-- Completed reload, in  2.395 seconds
+- Completed reload, in  2.798 seconds
 Domain Reload Profiling:
-	ReloadAssembly (2471ms)
-		BeginReloadAssembly (245ms)
+	ReloadAssembly (2882ms)
+		BeginReloadAssembly (293ms)
 			ExecutionOrderSort (0ms)
-			DisableScriptedObjects (9ms)
+			DisableScriptedObjects (12ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
-			CreateAndSetChildDomain (41ms)
-		EndReloadAssembly (2052ms)
-			LoadAssemblies (77ms)
+			CreateAndSetChildDomain (42ms)
+		EndReloadAssembly (2366ms)
+			LoadAssemblies (94ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (752ms)
+			SetupTypeCache (893ms)
 			ReleaseScriptCaches (1ms)
-			RebuildScriptCaches (90ms)
-			SetupLoadedEditorAssemblies (819ms)
+			RebuildScriptCaches (97ms)
+			SetupLoadedEditorAssemblies (945ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (32ms)
+				InitializePlatformSupportModulesInManaged (36ms)
 				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (194ms)
-				BeforeProcessingInitializeOnLoad (144ms)
-				ProcessInitializeOnLoadAttributes (390ms)
-				ProcessInitializeOnLoadMethodAttributes (46ms)
-				AfterProcessingInitializeOnLoad (12ms)
+				RefreshPlugins (203ms)
+				BeforeProcessingInitializeOnLoad (168ms)
+				ProcessInitializeOnLoadAttributes (472ms)
+				ProcessInitializeOnLoadMethodAttributes (53ms)
+				AfterProcessingInitializeOnLoad (13ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
-			AwakeInstancesAfterBackupRestoration (14ms)
+			AwakeInstancesAfterBackupRestoration (16ms)
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
 Launched and connected shader compiler UnityShaderCompiler after 0.02 seconds
-Refreshing native plugins compatible for Editor in 1.40 ms, found 1 plugins.
+Refreshing native plugins compatible for Editor in 1.42 ms, found 1 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 4027 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 49 unused Assets / (1.3 MB). Loaded Objects now: 4478.
 Memory consumption went from 157.7 MB to 156.4 MB.
-Total: 7.067549 ms (FindLiveObjects: 0.516703 ms CreateObjectMapping: 0.265121 ms MarkObjects: 5.265568 ms  DeleteObjects: 1.017813 ms)
+Total: 9.871995 ms (FindLiveObjects: 0.530377 ms CreateObjectMapping: 0.308558 ms MarkObjects: 7.838382 ms  DeleteObjects: 1.192323 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
@@ -196,7 +196,61 @@ AssetImportParameters requested are different than current active one (requested
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
-  Time since last request: 33087.571803 seconds.
+  Time since last request: 683.614407 seconds.
+  path: Assets/Sprites/waterpullborder.png
+  artifactKey: Guid(4dd0bc49df7cb59bea307b9633565365) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/waterpullborder.png using Guid(4dd0bc49df7cb59bea307b9633565365) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e9d09aba65f69e1ec4849d062fa6c791') in 0.179571 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/Sprites/shotgun.png
+  artifactKey: Guid(88962b57af6d57c2fbda76a63b278967) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/shotgun.png using Guid(88962b57af6d57c2fbda76a63b278967) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2ea7b60ca77f4fe207fc367a1d48b1cd') in 0.015417 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.000040 seconds.
   path: Assets/Sprites/tileset.png
   artifactKey: Guid(cdbe7f269e54020259519e1f3447a4a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Sprites/tileset.png using Guid(cdbe7f269e54020259519e1f3447a4a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b4f5a8c21f6c3c10f40c67781cbd4e4a') in 1.228073 seconds 
+Start importing Assets/Sprites/tileset.png using Guid(cdbe7f269e54020259519e1f3447a4a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '85b7c3d640397994703746fb0a6c4523') in 1.135519 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 56.142818 seconds.
+  path: Assets/Sprites/plantroot.png
+  artifactKey: Guid(282bd994784573c1686ec50871414515) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/plantroot.png using Guid(282bd994784573c1686ec50871414515) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '66af32687dcb8dba493260b061f2e234') in 0.014909 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.064998 seconds.
+  path: Assets/Sprites/icetomb.png
+  artifactKey: Guid(bf622ea4ad961c344b6b80b14511bd2c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/icetomb.png using Guid(bf622ea4ad961c344b6b80b14511bd2c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bf0fb19d0665a5db774267087f3e84a1') in 0.019226 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 0.137383 seconds.
+  path: Assets/Sprites/iceshield.png
+  artifactKey: Guid(11e7ede22706d724f9547eb98fe9077b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Sprites/iceshield.png using Guid(11e7ede22706d724f9547eb98fe9077b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8affe4c6e2e7872a5ec342cadd4ebe3b') in 0.025754 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 11.507106 seconds.
+  path: Assets/Scenes/Game.unity
+  artifactKey: Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/Game.unity using Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '254e694f4edb43e14f01255f87de2a7f') in 0.002736 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 17.112328 seconds.
+  path: Assets/Scenes/asd.unity
+  artifactKey: Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/asd.unity using Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7ce6d44f5f60009db180ac9a9b0cce44') in 0.002648 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 6.959904 seconds.
+  path: Assets/Scenes/Game.unity
+  artifactKey: Guid(30d600deb8495850b91bdaefcee385dd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/Game.unity using Guid(30d600deb8495850b91bdaefcee385dd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f492ba3f28679182d061ac4a48264a8e') in 0.002598 seconds 
+========================================================================
+Received Import Request.
+  Time since last request: 3.838493 seconds.
+  path: Assets/Scenes/Menu.unity
+  artifactKey: Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/Menu.unity using Guid(2cda990e2423bbf4892e6590ba056729) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '34269c078d73072052e3ebf6ba7e6ef6') in 0.001950 seconds 

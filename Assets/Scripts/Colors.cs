@@ -17,7 +17,7 @@ public static class Colors {
     public static Color magenta = new(0.678f, 0.396f, 1f); // ad65ff
     public static Color invisible = new(0, 0, 0, 0); // alpha is 0
     public static Color partial = new(1, 1, 1, 0.7f); // alpha is 0.7
-    public static Color textMain = new(0f, 0.149f, 0.02f); // 002605
+    public static Color textMain = new(0.039f, 0.067f, 0.043f); // 0A110B
     public static Color textClicked = new(0f, 0.831f, 0.38f); // 0D4614
     public static Color textHovered = new(0.165f, 0.427f, 0.012f); // 2A6D33
     public static Color elstrike = new(1f, 0.439f, 0.333f, 0.7098f); // FF7055
