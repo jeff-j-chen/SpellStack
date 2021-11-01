@@ -10,6 +10,7 @@ public class Music : MonoBehaviour {
     private int soundLevel;
     
     private void Awake() {
+        SetUpSingleton();
         musicEnabled = PlayerPrefs.GetString("music") == "true" ? true : false;
         soundLevel = PlayerPrefs.GetInt("soundLevel");
         audioSource = GetComponent<AudioSource>();
@@ -21,6 +22,15 @@ public class Music : MonoBehaviour {
         audioSource.volume = 0;
     }
     
+    private void SetUpSingleton() {
+        if (FindObjectsOfType(GetType()).Length > 1) {
+            Destroy(gameObject);
+        }
+        else {
+            DontDestroyOnLoad(gameObject);
+        }
+    }
+
     private void Start() {
         GetComponent<AudioSource>().volume = PlayerPrefs.GetString("music", "true") == "true" ? 0.05f : 0;
         StartCoroutine(PlayMusic("Karl"));
@@ -46,14 +56,20 @@ public class Music : MonoBehaviour {
     }
     
     private IEnumerator FadeVolumeInCoro() { 
-        for (int i = 0; i < 5; i++) {
-            yield return new WaitForSeconds(0.05f);
-            audioSource.volume += 0.01f;
+        if (PlayerPrefs.GetString("music") == "true") {
+            for (int i = 0; i < 5; i++) {
+                yield return new WaitForSeconds(0.05f);
+                audioSource.volume += 0.01f;
+            }
+            audioSource.volume = 0.05f;
         }
-        audioSource.volume = 0.05f;
+        else { 
+            audioSource.volume = 0;
+        }
     }
     
     private IEnumerator FadeVolumeOutCoro() { 
+        audioSource.volume = PlayerPrefs.GetString("music") == "true" ? 0.05f : 0;
         for (int i = 0; i < 5; i++) {
             yield return new WaitForSeconds(0.05f);
             audioSource.volume -= 0.01f;

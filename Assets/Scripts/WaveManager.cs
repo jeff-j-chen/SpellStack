@@ -30,14 +30,15 @@ public class WaveManager : MonoBehaviour {
     [SerializeField] private bool showTutorial;
     [SerializeField] public List<GameObject> bullets = new();
     [SerializeField] private bool lockWave = false;
-
     private Player player;
     private SoundManager soundManager;
     private Coroutine bossMinions;
+    private PauseMenu pauseMenu;
 
     private void Start() {
         showTutorial = PlayerPrefs.GetString("tutorial", "true") == "true" ? true : false;
         player = FindObjectOfType<Player>();
+        pauseMenu = FindObjectOfType<PauseMenu>();
         soundManager = FindObjectOfType<SoundManager>();
         Color temp = behindBanner.GetComponent<SpriteRenderer>().color;
         temp.a = 0f;
@@ -147,7 +148,7 @@ public class WaveManager : MonoBehaviour {
                     StartCoroutine(SlideCardDown());
                     yield return new WaitForSeconds(7.5f);
                     if (showTutorial) {
-                        TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <P> to pause the game", 6f);
+                        TutorialText("Use <WASD> or <Arrow Keys> to move and <Left Click> to shoot.\nPress <P> to pause the game.", 6f);
                         yield return new WaitForSeconds(7.7f);
                         if (showTutorial) {
                             TutorialText("Coming up is a basic enemy - very simple to dispatch with a basic attack.", 5f);
@@ -210,6 +211,10 @@ public class WaveManager : MonoBehaviour {
                     bossBarBg.SetActive(false);
                     StartCoroutine(SlideCardDown());
                     yield return new WaitForSeconds(5f);
+                    if (showTutorial) {
+                        TutorialText("You slowly regenerate health when there are 3 or more enemies alive.", 5f);
+                        yield return new WaitForSeconds(5.5f);
+                    }
                     liveEnemies = 7;
                     SummonEnemy(Enemy.EnemyType.Regular, Colors.yellow);
                     yield return new WaitForSeconds(0.8f);
@@ -391,13 +396,7 @@ public class WaveManager : MonoBehaviour {
                     }
                     break;
                 case 12: 
-                    waveText.text = "Game complete! Attempts: " + PlayerPrefs.GetInt("deaths");
-                    for (int i = 1; i < 41; i++) {
-                        cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
-                        waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
-                        yield return new WaitForSeconds(0.025f);
-                    }
-                    StartCoroutine(HideGame());
+                    StartCoroutine(HideGame(true));
                     soundManager.PlayClip("unlocked");
                     break;
                 default: Debug.LogError($"this wave ({curWave}) was not accounted for!"); break;
@@ -529,11 +528,10 @@ public class WaveManager : MonoBehaviour {
         foreach (Enemy e in spawnedEnemies) {
             if (e != null) { Destroy(e.gameObject); }
         }
-        StartCoroutine(HideGame());
-        StartCoroutine(PresentRetry());
+        StartCoroutine(HideGame(false));
     }
 
-    private IEnumerator HideGame() {
+    private IEnumerator HideGame(bool wonGame) {
         SpriteRenderer sr = behindBanner.GetComponent<SpriteRenderer>();
         Color temp = sr.color;
         temp.a = 0;
@@ -543,33 +541,12 @@ public class WaveManager : MonoBehaviour {
             temp.a += 0.025f;
             sr.color = temp;
         }
-    }
-    
-    private IEnumerator PresentRetry() {
-        // card: 25.73313 -> 0
-        // text: 456 -> 0
-        waveText.text = ">retry< (esc to quit)";
-        for (int i = 1; i < 41; i++) {
-            cardTilemap.transform.localPosition = new Vector2(0, 25.733f - i * 25.733f/40);
-            waveText.transform.localPosition = new Vector2(0, 456.0f - i * (456.0f-42.67f)/40);
-            yield return new WaitForSeconds(0.025f);
+        if (wonGame) { 
+            pauseMenu.Pause(false, curWave, PlayerPrefs.GetInt("deaths"));
         }
-    }
-    
-    private IEnumerator HideRetry() {
-        // card: 25.73313 -> 0
-        // text: 456 -> 0
-        waveText.text = ">retry< (esc to quit)";
-        for (int i = 1; i < 41; i++) {
-            cardTilemap.transform.localPosition = new Vector2(0, i * 25.733f/40);
-            waveText.transform.localPosition = new Vector2(0, 42.67f + i * (456.0f-42.67f)/40);
-            yield return new WaitForSeconds(0.025f);
+        else {
+            pauseMenu.Pause(true, curWave);
         }
-    }
-    
-    public void AttemptRestart() {
-        StartCoroutine(HideRetry());
-        Initiate.Fade("Game", Color.black, 2.5f);
     }
     
     public void PlayFire() {

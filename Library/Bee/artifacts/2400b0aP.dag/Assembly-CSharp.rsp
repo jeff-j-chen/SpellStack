@@ -312,10 +312,12 @@
 "Assets/Scripts/Fader.cs"
 "Assets/Scripts/Initiate.cs"
 "Assets/Scripts/ItemFrame.cs"
+"Assets/Scripts/Menu.cs"
+"Assets/Scripts/MenuButton.cs"
 "Assets/Scripts/MouseCursor.cs"
 "Assets/Scripts/Music.cs"
+"Assets/Scripts/PauseMenu.cs"
 "Assets/Scripts/Player.cs"
-"Assets/Scripts/RetryButton.cs"
 "Assets/Scripts/SoundManager.cs"
 "Assets/Scripts/WaveManager.cs"
 -langversion:9.0

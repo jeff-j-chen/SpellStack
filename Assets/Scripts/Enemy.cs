@@ -391,32 +391,31 @@ public class Enemy : MonoBehaviour {
             soundManager.PlayClip("lightningbuildupSlowed");
             waveManager.SummonAtPos(player.transform.position);
             yield return new WaitForSeconds(2f);
-            cameraShake.Shake();
             soundManager.PlayClip("lightning");
+            cameraShake.Shake();
         }
     }
     
     private IEnumerator LightningChase() {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
-            print("playing lightning buildup!");
             soundManager.PlayClip("lightningbuildupSlowed");
-            for (int i = 0; i < lightningCount; i++) {
+            for (int i = 0; i < lightningCount-20; i++) {
                 waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
             }
             Vector2 lookDirection = (Vector2)player.transform.position + player.GetComponent<Rigidbody2D>().velocity - (Vector2)transform.position;
             float theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             Shotgun(5, 6, 5, 0f, theta, new Vector2(0, 0), 30, Bullet.Behavior.Break, Colors.green, projectilePrefab:shotgunBullet);
             yield return new WaitForSeconds(2f);
-            cameraShake.Shake();
-            print("playing lightning strike!");
             soundManager.PlayClip("lightning");
+            cameraShake.Shake();
         }
     }
     
     private IEnumerator LightningChaseWithWaves() {
         curMovementType = MovementType.RunningAtPlayer;
         while (true) {
+            soundManager.PlayClip("lightningbuildupSlowed");
             for (int i = 0; i < lightningCount; i++) {
                 waveManager.SummonAtPos(new Vector2(Random.Range(-33f, 33f), Random.Range(-15f, 18f)));
             }
@@ -427,6 +426,7 @@ public class Enemy : MonoBehaviour {
             theta = Mathf.Atan2(lookDirection.y, lookDirection.x);
             FireProjectile(5, 30, 1f, theta, new Vector2(0, 0), Bullet.Behavior.Break, Colors.purple, projectilePrefab:fatShotBullet);
             yield return new WaitForSeconds(2f);
+            soundManager.PlayClip("lightning");
         }
     }
     

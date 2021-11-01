@@ -93,7 +93,7 @@ public class Player : MonoBehaviour {
     private float horizontal;
     private float vertical;
     private const float MoveLimiter = 0.7f;
-    private bool lockActions = false;
+    public bool lockActions = false;
     private SpriteRenderer sr;
     private bool isInvincible = false;
     
@@ -134,7 +134,7 @@ public class Player : MonoBehaviour {
     
     private IEnumerator HealthRegen() {
         while (true) {
-            if (health <= startHealth - regenAmount && waveManager.transform.childCount > 3) { health += regenAmount; }
+            if (health <= startHealth - regenAmount && waveManager.transform.childCount >= 3) { health += regenAmount; }
             ScaleHPBar();
             yield return new WaitForSeconds(1f);
         }
@@ -154,9 +154,9 @@ public class Player : MonoBehaviour {
     }
 
     private void Update() {
-        horizontal = Input.GetAxisRaw("Horizontal"); 
-        vertical = Input.GetAxisRaw("Vertical");
         if (!lockActions) {
+            horizontal = Input.GetAxisRaw("Horizontal"); 
+            vertical = Input.GetAxisRaw("Vertical");
             if (Input.GetMouseButton(0)) { AttemptAttack(); }
             if (Input.GetKeyDown(KeyCode.Alpha1)) { if(unlockedSpells >= 1) { spellList[0](0); } } 
             if (Input.GetKeyDown(KeyCode.Alpha2)) { if(unlockedSpells >= 2) { spellList[1](1); } }
@@ -319,6 +319,7 @@ public class Player : MonoBehaviour {
     private void RockRise(int spellIndex) { StartCoroutine(RockRiseCoro(spellIndex)); }
     private IEnumerator RockRiseCoro(int spellIndex) { 
         if (!rockRiseUsed) {
+            print("INCREASE ROCKRISE COOLDOWN!");
             soundManager.PlayClip("rockrise");
             PutSpellOnCooldown(spellIndex + 1);
             Vector2 drop = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -603,9 +604,7 @@ public class Player : MonoBehaviour {
                 offsetAmount = 0.5f;
                 position = transform.position;
                 theta = GetAngleToCursor(position);
-                rise = Mathf.Sin(theta);
-                run = Mathf.Cos(theta);
-                perpendicular = new(rise*offsetAmount, -run*offsetAmount);
+                perpendicular = new(Mathf.Sin(theta)*offsetAmount, -Mathf.Cos(theta)*offsetAmount);
                 FireProjectile(
                     projectileSpeed, 
                     attackDmgs[1], 
